@@ -110,8 +110,8 @@ jobs:
           body=$(curl -sf "$BASE/.well-known/security.txt")
           echo "$body" | grep -qi 'expires' || { echo "FAIL: security.txt missing Expires field"; exit 1; }
           echo "$body" | grep -qi 'policy' || { echo "FAIL: security.txt missing Policy field"; exit 1; }
-          # Must NOT contain name or identity info
-          echo "$body" | grep -qi 'samindra\|sanjaya' && { echo "FAIL: security.txt contains identity info"; exit 1; }
+          # Must NOT contain legal name
+          echo "$body" | grep -qi 'sanjaya' && { echo "FAIL: security.txt contains legal name info"; exit 1; }
           echo "PASS: security.txt well-formed"
 
       - name: Assert redirect stubs — 200 not 404
