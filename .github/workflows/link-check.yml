@@ -28,15 +28,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify build (banned strings)
+        run: node scripts/verify-build.mjs
+
       - name: Check links
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2
         with:
           args: >
-            --base dist/
+            --base "${{ github.workspace }}/dist"
             --no-progress
             --exclude-loopback
             --exclude "^mailto:"
             --exclude "^https?://(hackerone|hackenproof|hackthebox|tryhackme|cantina|remedy)\."
             --exclude "^https://samindrasamiya\.site"
-            dist/**/*.html
+            --exclude "^https?://(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|0\.0\.0\.0)"
+            "${{ github.workspace }}/dist/**/*.html"
           fail: true
