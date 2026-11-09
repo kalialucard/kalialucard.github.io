@@ -32,9 +32,10 @@ function labSection(post: (typeof labPosts)[number]): string {
 <Base
   title="Home"
   description={profile.tagline}
+  hasLabsPosts={labPosts.length > 0}
 >
   <Nav slot="nav" />
-  <Footer slot="footer" />
+  <Footer slot="footer" hasLabsPosts={labPosts.length > 0} />
 
   <!-- Hero -->
   <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-20 pb-16">

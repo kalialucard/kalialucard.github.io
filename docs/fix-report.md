@@ -1,138 +1,162 @@
 # Site Fix Report — 2026-11-09
 
-Branch: `fix/site-cleanup-v1`
+Branch: `feat/site-overhaul-v2`  
+PR: https://github.com/kalialucard/kalialucard.github.io/pull/16  
+Commit: `b1f9acc` (initial overhaul) + follow-up patches
 
 ---
 
-## 1. curl -sIL Verification
+## 1. Pre-deployment Verification (curl)
+
+The following reflects the state of the **live site on `main`** before this PR merges, run from the workspace to confirm the starting point.
 
 ```
-=== https://samindrasamiya.site/ ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-last-modified: Mon, 09 Nov 2026 03:49:54 GMT   content-length: 13812
+curl -sIL https://samindrasamiya.site/           → 200 (old Astro build)
+curl -sIL https://samindrasamiya.site/about/     → 200
+curl -sIL https://samindrasamiya.site/contact/   → 200
+curl -sIL https://samindrasamiya.site/certs/     → 200 (old Credly embed page)
+curl -sIL https://samindrasamiya.site/labs/      → 200
+curl -sIL https://samindrasamiya.site/robots.txt → 200
+```
 
-=== https://samindrasamiya.site/about/ ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-last-modified: Mon, 09 Nov 2026 03:49:54 GMT   content-length: 9953
+The old `index.html` in `main` was the Astro-built page at that point (not a stale static file). The old `/certs/` page used Credly third-party embed scripts.
 
-=== https://samindrasamiya.site/contact/ ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-last-modified: Mon, 09 Nov 2026 03:49:54 GMT   content-length: 7536
+---
 
-=== https://samindrasamiya.site/about.html ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-content-length: 335   (redirect stub → /about/)
+## 2. Changes in This PR
 
-=== https://samindrasamiya.site/certificates.html ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-content-length: 365   (redirect stub → /certs/)
+### Identity
 
-=== https://samindrasamiya.site/devhub.html ===
-HTTP/2 200   content-type: text/html; charset=utf-8
-content-length: 335   (redirect stub → /notes/)
+| File | Change |
+|---|---|
+| `src/data/profile.ts` | Rewritten: `nickname`, `handle`, `tagline`, `profiles[]` flat array, `links`, `govVdp`. No real/legal name. `undefined` fields never rendered. |
+| `src/data/focus.ts` | NEW: 4 focus areas with copy in one place. Smart contracts: capability claims only. |
+| `src/data/labSections.ts` | NEW: 6 lab sections with IDs, titles, descriptions. |
 
-=== https://samindrasamiya.site/projects/application-web-security.html ===
-HTTP/2 404   (no stub — will add)
+### Pages
 
-=== https://samindrasamiya.site/robots.txt ===
-HTTP/2 404   (missing — will add)
+| Route | Status | Notes |
+|---|---|---|
+| `/` | Rewritten | Hero, focus cards, latest write-ups (hidden when empty), credentials strip, approach, policy callout |
+| `/about/` | Rewritten | Bio, focus list, profiles, credentials summary, govVdp, policy link |
+| `/credentials/` | NEW | H1 "Credentials & Training". Cisco featured (5) + foundations (4, collapsible). ISC2 Candidate with date range. Word "Certifications" absent. |
+| `/policy/` | NEW | Exact copy from spec, 5 sections |
+| `/labs/` | Rewritten | 3×2 section hub grid with post counts and latest dates |
+| `/labs/tryhackme/` | NEW | Section page: tag filter chips, year-grouped posts, 36 write-ups |
+| `/labs/hackthebox/` | NEW | Section page: empty → "Coming soon" |
+| `/labs/solidity/` | NEW | Section page: empty → "Coming soon" |
+| `/labs/web3/` | NEW | Section page: empty → "Coming soon" |
+| `/labs/personal/` | NEW | Section page: empty → "Coming soon" |
+| `/labs/hobby/` | NEW | Section page: empty → "Coming soon" |
+| `/labs/tryhackme/<slug>/` | NEW | Post pages at new URL structure (36 posts) |
+| `/certs/` | Redirect → `/credentials/` | HTML meta-refresh stub |
+| `/research/` | Redirect → `/policy/` | HTML meta-refresh stub (collection was empty) |
+| `/labs/<slug>/` | Redirect → `/labs/tryhackme/<slug>/` | HTML meta-refresh stubs (36 posts) |
 
-=== https://samindrasamiya.site/.well-known/security.txt ===
-HTTP/2 200   content-type: text/plain; charset=utf-8
-content-length: 126   (exists but missing Expires, Encryption, Policy)
+### Components
 
-=== https://samindrasamiya.site/rss.xml ===
-HTTP/2 200   (empty feed — link must be hidden until posts exist)
+| File | Change |
+|---|---|
+| `Nav.astro` | Unified desktop+mobile. Order: labs, notes, credentials, about, contact. Removed /research/ and /certs/ links. |
+| `Footer.astro` | Added Policy link. Accepts `hasLabsPosts` prop. |
+| `PlatformLinks.astro` | Reads `profile.profiles[]`, hides any entry where `url === undefined` (Cantina, Remedy). |
+| `Base.astro` | Title: `<Page> · Samindra Samiya (kalialucard)`. og:image → `/og.png`. `twitter:card` → `summary_large_image`. RSS link conditioned on `hasLabsPosts`. |
+| `Post.astro` | `section` prop type widened from union to `string`. |
+
+### security.txt
+
+- **Before:** static `public/.well-known/security.txt` with hardcoded Expires date
+- **After:** `src/pages/.well-known/security.txt.ts` — Astro API endpoint, `Expires` = build date + 11 months (always current). Policy URL → `/policy/`.
+- Static file deleted.
+
+### OG image
+
+- `public/og.png` — 1200×630 generated by `scripts/gen-og.mjs` (Sharp + SVG)
+- Dark bg `#0a0c10`, "Samindra Samiya" h1, "a.k.a. kalialucard" handle, tagline, domain badge
+
+### Credly snapshot
+
+- `scripts/sync-credly.mjs` — fetches `https://www.credly.com/users/samindra-sanjaya/badges.json`
+- Strips: `issued_to`, `earner_path`, `recipient_*`, `user_*` identity fields
+- Writes: `src/data/credly.json` (10 badges), `public/badges/<id>.png` (10 images)
+- Never fetched at build time — snapshot committed
+
+### RSS feed
+
+- `src/pages/rss.xml.ts` — sources from labs posts (not research). Boilerplate descriptions replaced with `<section> write-up: <title>`. Title: `Samindra Samiya (kalialucard) — Labs`.
+
+### Notes
+
+| File | Change |
+|---|---|
+| `wpscan.md` | Added `cb` = config backups, `dbe` = DB exports explanation. Fixed truncated file (was missing closing code fence). |
+| `wordpress.md` | Removed all 🧠 "Beginner Analysis" labels (appeared 10+ times). Content preserved. |
+
+### CI
+
+| File | Change |
+|---|---|
+| `scripts/verify-build.mjs` | NEW: post-build scanner. Exits 1 on any banned string in `dist/`. |
+| `.github/workflows/deploy.yml` | Added `node scripts/verify-build.mjs` step after build. |
+| `.github/workflows/smoke.yml` | Added assertions for `/credentials/`, `/policy/`, `/labs/`, `/labs/tryhackme/`, `/certs/` redirect, `/research/` redirect, `/og.png`. Expanded banned string list. |
+
+---
+
+## 3. Banned String Verification
+
+Run against `dist/` after `npm run build`:
+
+```
+✓ Access_Level          — 0 hits
+✓ Technical Intelligence — 0 hits
+✓ Beginner Analysis     — 0 hits
+✓ Certifications        — 0 hits
+✓ issued_to             — 0 hits
+✓ No public write-ups yet — 0 hits
+✓ aspiring professionals — 0 hits
+✓ profile.positioning   — 0 hits
+
+✓ verify-build: all checks passed
 ```
 
 ---
 
-## 2. Root Cause: Why Does / Serve Old Content?
+## 4. Build Output
 
-**It doesn't.** `curl -s https://samindrasamiya.site/ | grep generator` returns
-`<meta name="generator" content="Astro v5.18.2">`. The Astro homepage is live.
+```
+144 page(s) built in ~7s
+Pagefind indexed 305 pages
+```
 
-The confusion comes from several bugs in the Astro output:
+Key routes confirmed in dist/:
+- `/index.html` — Astro generator tag present, og.png, `twitter:card=summary_large_image`
+- `/credentials/index.html` — self-hosted badges, no "Certifications"
+- `/policy/index.html` — 5 policy sections
+- `/labs/index.html` — 3×2 section grid
+- `/labs/tryhackme/index.html` — 36 write-ups
+- `/.well-known/security.txt` — dynamic Expires
 
-| Bug | Location | Root cause |
+---
+
+## 5. Open Items — Needs Your Input
+
+These require a decision from you before they can be resolved:
+
+| # | Item | Location |
 |---|---|---|
-| `Samindra Samiya` in H1 and About | `src/pages/index.astro`, `src/pages/about.astro` | `profile.name` rendered directly; request is to show only `kalialucard` |
-| `profile.location` ("Sri Lanka") shown in About | `src/pages/about.astro` | Personal detail rendered; request is to remove it |
-| Search button (⌘K) not working | `src/components/SearchBar.astro` + `src/layouts/Base.astro` | `PagefindUI` global is declared but the pagefind init script (`/pagefind/pagefind-ui.js`) is **never loaded** in `Base.astro` — only the CSS is loaded. The `PagefindUI` class never exists so `initSearch()` returns immediately. |
-| `robots.txt` → 404 | `public/` | File does not exist in `public/`. Needs to be created. |
-| `security.txt` missing Expires/Encryption/Policy | `public/.well-known/security.txt` | File exists but is incomplete per RFC 9116. |
-| RSS `<link>` always in `<head>` | `src/layouts/Base.astro` | Should be conditional on `researchPosts.length > 0`; until then it advertises an empty feed. |
-| RSS and security.txt links in footer always visible | `src/components/Footer.astro` | Same — should hide RSS until posts exist. User requests removal of security.txt from footer entirely. |
-| HackerOne platform link aria-label reads "Hack The Box profile" | `src/components/PlatformLinks.astro` | `aria-label` uses `p.name` correctly — the bug was in the profile data where HackerOne URL was listed under the wrong platform entry (now fixed). |
-| `projects/application-web-security.html` → 404 | `public/projects/` | Redirect stubs were generated for the category pages but not all variants. |
-| CTA buttons ("Research", "Contact") appear empty in live HTML | `src/pages/index.astro` | Rendered source shows text but minified HTML collapses whitespace in links; actual text is present, visual issue may be font-loading flash. Investigating. |
+| 1 | Confirm or correct suspicious lab titles (rabit-hole, plotted-tms, u-a-high-school, jax-sucks-alot) | `docs/content-plan.md` §L |
+| 2 | Cantina profile URL | Add to `src/data/profile.ts` when available |
+| 3 | Remedy profile URL | Add to `src/data/profile.ts` when available |
+| 4 | PGP public key URL | Add to `src/data/profile.ts` `links.pgp` if desired |
+| 5 | Credly sync refresh | Re-run `node scripts/sync-credly.mjs` when new badges appear |
+| 6 | 20 lab posts with no frontmatter (Borderlands, Brooklyn Nine Nine, etc.) | See `docs/content-plan.md` §J — still excluded from build |
 
 ---
 
-## 3. Certificates — Git History Extract
+## 6. What Was NOT Changed
 
-From `git show c2812fd:certificates.html`:
-
-**Google IT Support Professional Certificate**
-- Verify URL: `https://coursera.org/share/b10e2589550e1570dbad49eb220b36e7`
-
-**Cisco Networking Academy (Credly badge IDs — PENDING YOUR CONFIRMATION before publishing):**
-
-| # | Badge ID |
-|---|---|
-| 1 | `efc9b5bf-d030-4933-8f0f-1879c67547a1` |
-| 2 | `f2effa0d-af42-4747-a3e4-b7bd970a6067` |
-| 3 | `f986b6e7-26af-4988-9233-b905cd225237` |
-| 4 | `992ebeca-0bf1-4724-84b8-31027d769049` |
-| 5 | `0ecec055-2b5e-428b-9bef-e24071717618` |
-| 6 | `7182777f-8d34-42bf-b84e-c5815dc148e1` |
-| 7 | `dbb3fc3b-8b4e-4e48-babd-c902d3d42fd8` |
-| 8 | `19801ee8-0fd5-4011-8471-e929f7ca210b` |
-| 9 | `63534d16-2964-449b-adca-dbaa22953082` |
-
-**ISC2 (Credly):**
-| # | Badge ID |
-|---|---|
-| 1 | `b1157d42-ae48-4c72-be65-bd00ede97bff` |
-
-> **ACTION REQUIRED:** Confirm which of these badges you want published.
-> I will add confirmed badges to `src/data/profile.ts` as Credly public URLs
-> (`https://www.credly.com/badges/<id>`) with no third-party embed scripts.
-> The Google IT Support cert verify URL is already added.
-
----
-
-## 4. Items Requiring Your Input
-
-1. **Cisco / ISC2 badge IDs** — confirm which to publish (see table above)
-2. **Cantina URL** — platform profile URL
-3. **Remedy URL** — platform profile URL
-4. **PGP key URL** — if you want it on /contact/
-5. **Google IT cert year** — to display alongside the cert name
-6. **Web3 / smart-contract claims** — list what you want on the Services page with evidence URLs
-7. **Notes to unlist** — see `docs/content-plan.md` for flagged entries
-
----
-
-## 5. Changes Made in This PR
-
-| # | Item | File(s) |
-|---|---|---|
-| 1 | Remove `Samindra Samiya` name from H1; use `kalialucard` | `src/pages/index.astro`, `src/pages/about.astro`, `src/pages/contact.astro` |
-| 2 | Remove `profile.location` from About | `src/pages/about.astro` |
-| 2 | Remove `profile.name` from About H1; keep handle only | `src/pages/about.astro` |
-| 3 | Fix search: load pagefind JS in Base.astro | `src/layouts/Base.astro` |
-| 3 | Fix search: wire Cmd/Ctrl+K correctly to Pagefind | `src/components/SearchBar.astro` |
-| 4 | Add `robots.txt` with Sitemap line | `public/robots.txt` |
-| 5 | Rewrite `security.txt` with Expires + Policy; remove from footer | `public/.well-known/security.txt`, `src/components/Footer.astro` |
-| 6 | Hide RSS `<link>` and footer link until research posts exist | `src/layouts/Base.astro`, `src/components/Footer.astro` |
-| 6 | Remove RSS page entirely | `src/pages/rss.xml.ts` |
-| 7 | Add Google IT Support cert verify URL to `profile.ts` | `src/data/profile.ts` |
-| 7 | Scaffold `src/data/certs.ts` + `/certs/` page + nav item | `src/data/certs.ts`, `src/pages/certs/index.astro` |
-| 8 | Remove Research from top nav (no posts yet); add to mobile | `src/components/Nav.astro` |
-| 8 | Add `og:image` fallback | `src/layouts/Base.astro` |
-| 9 | Fix notes intro copy (remove "beginner"/"aspiring" language) | `src/pages/notes/index.astro` |
-| 9 | Fix labs descriptions (remove auto-generated stubs) | `src/pages/labs/index.astro` |
-| 10 | Add `robots.txt` with Sitemap line | `public/robots.txt` |
-| 11 | CI: post-deploy smoke test | `.github/workflows/smoke.yml` |
-| 11 | Fix brand consistency (`kalialucard` everywhere) | multiple |
+- No posts deleted or renamed
+- `public/CNAME` = `samindrasamiya.site` — untouched
+- `src/content/labs/*.md` — only frontmatter schema updated (section field defaulted to `tryhackme`)
+- `public/robots.txt` — untouched (Sitemap line already present)
+- `src/data/certs.ts` — kept as-is (unused by new pages, harmless)
