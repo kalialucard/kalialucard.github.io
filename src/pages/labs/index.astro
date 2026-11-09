@@ -11,9 +11,34 @@ const posts = (await getCollection('labs'))
     return db - da;
   });
 
-// Collect all unique tags and platforms
-const allTags = [...new Set(posts.flatMap(p => p.data.tags ?? []))].sort();
-const allPlatforms = [...new Set(posts.map(p => p.data.platform).filter(Boolean))].sort();
+// Use `platform` if set, else fall back to `category` (old CMS used category: tryhackme)
+function getPlatform(post: (typeof posts)[number]): string {
+  if (post.data.platform) return post.data.platform;
+  if (post.data.category) {
+    const c = post.data.category.toLowerCase();
+    if (c === 'tryhackme') return 'TryHackMe';
+    if (c === 'hackthebox' || c === 'htb') return 'HackTheBox';
+    return post.data.category;
+  }
+  return 'TryHackMe'; // default — all current labs are THM
+}
+
+// Tags to suppress from filter chips
+const HIDDEN_TAGS = new Set(['beginner', 'ctf', 'command reference']);
+// Auto-generated description pattern to suppress
+const BOILERPLATE_RE = /^Detailed technical walkthrough and security analysis/i;
+
+function displayDesc(post: (typeof posts)[number]): string | undefined {
+  const d = post.data.description;
+  if (!d || BOILERPLATE_RE.test(d)) return undefined;
+  return d;
+}
+
+// Collect unique platforms and filtered tags
+const allPlatforms = [...new Set(posts.map(getPlatform))].sort();
+const allTags = [...new Set(
+  posts.flatMap(p => (p.data.tags ?? []).filter(t => !HIDDEN_TAGS.has(t.toLowerCase())))
+)].sort();
 ---
 
 <Base title="Labs" description="HackTheBox and TryHackMe write-ups by kalialucard.">
@@ -52,25 +77,30 @@ const allPlatforms = [...new Set(posts.map(p => p.data.platform).filter(Boolean)
       <p class="font-mono text-sm text-muted">No write-ups yet.</p>
     ) : (
       <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="labs-grid" role="list">
-        {posts.map(post => (
+        {posts.map(post => {
+          const platform = getPlatform(post);
+          const desc = displayDesc(post);
+          const visibleTags = (post.data.tags ?? []).filter((t: string) => !HIDDEN_TAGS.has(t.toLowerCase()));
+          return (
           <li
-            data-platform={post.data.platform ?? ''}
+            data-platform={platform}
             data-tags={JSON.stringify(post.data.tags ?? [])}
             class="lab-card border border-border rounded-lg p-4 hover:border-accent/30 transition-colors"
           >
             <a href={`/labs/${post.slug}/`} class="group block focus-visible:outline-2 focus-visible:outline-accent rounded h-full">
-              {post.data.platform && (
-                <span class="font-mono text-xs text-muted uppercase tracking-wider">{post.data.platform}</span>
-              )}
+              <span class="font-mono text-xs text-muted uppercase tracking-wider">{platform}</span>
               <h2 class="text-text font-medium group-hover:text-accent transition-colors mt-1 mb-2 text-sm">
                 {post.data.title}
               </h2>
+              {desc && (
+                <p class="text-xs text-muted leading-relaxed mb-2">{desc}</p>
+              )}
               {post.data.difficulty && (
                 <span class="font-mono text-xs text-muted">{post.data.difficulty}</span>
               )}
-              {post.data.tags && post.data.tags.length > 0 && (
+              {visibleTags.length > 0 && (
                 <div class="flex flex-wrap gap-1.5 mt-3">
-                  {post.data.tags.slice(0, 4).map((t: string) => (
+                  {visibleTags.slice(0, 4).map((t: string) => (
                     <span class="font-mono text-[0.65rem] text-muted border border-border/40 px-1.5 py-0.5 rounded-full">
                       {t}
                     </span>
@@ -79,7 +109,8 @@ const allPlatforms = [...new Set(posts.map(p => p.data.platform).filter(Boolean)
               )}
             </a>
           </li>
-        ))}
+          );
+        })}
       </ul>
     )}
   </div>

@@ -3,14 +3,19 @@ import Base from '@/layouts/Base.astro';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
 import { getCollection } from 'astro:content';
+import { profile } from '@/data/profile';
 
 const notes = (await getCollection('notes'))
   .sort((a, b) => a.data.title.localeCompare(b.data.title));
 
-const allTags = [...new Set(notes.flatMap(n => n.data.tags ?? []))].sort();
+// Strip meta-tags that shouldn't appear as filters
+const HIDDEN_TAGS = new Set(['beginner', 'command reference', 'aspiring']);
+const allTags = [...new Set(
+  notes.flatMap(n => (n.data.tags ?? []).filter(t => !HIDDEN_TAGS.has(t.toLowerCase())))
+)].sort();
 ---
 
-<Base title="Notes" description="Security tool references and command notes by kalialucard.">
+<Base title="Notes" description={`Security tool references and command notes · ${profile.handle}`}>
   <Nav slot="nav" />
   <Footer slot="footer" />
 
@@ -18,7 +23,7 @@ const allTags = [...new Set(notes.flatMap(n => n.data.tags ?? []))].sort();
     <p class="font-mono text-xs text-muted mb-6">~/notes</p>
     <h1 class="text-3xl font-semibold text-text mb-3">Notes</h1>
     <p class="text-muted mb-8 max-w-xl">
-      Tool references and command collections. Merged overview + command-list pages for each tool.
+      Tool references, command collections, and technique notes.
     </p>
 
     <!-- Tag filters -->

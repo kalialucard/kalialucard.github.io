@@ -1,10 +1,10 @@
 ---
-title: "Wpscan Command List"
+title: "WPScan"
 date: 2026-01-05
 category: commands
 enrich: false
-tags: wpscan, cybersecurity, command reference, beginner, web
-description: Top 10 essential commands and a master guide for using Wpscan in penetration testing.
+tags: wpscan, cybersecurity, web
+description: WordPress vulnerability scanner — enumerate plugins, themes, users, and weak credentials.
 ---
 
 # WPScan Command Guide

@@ -1,12 +1,15 @@
 ---
 import { profile } from '@/data/profile';
 import '@/styles/global.css';
+import SearchBar from '@/components/SearchBar.astro';
 
 interface Props {
   title: string;
   description?: string;
   ogType?: 'website' | 'article';
   canonicalURL?: string;
+  /** Pass true on pages that have research posts to enable RSS discovery */
+  hasResearchPosts?: boolean;
 }
 
 const {
@@ -14,9 +17,11 @@ const {
   description = profile.positioning,
   ogType = 'website',
   canonicalURL = Astro.url.href,
+  hasResearchPosts = false,
 } = Astro.props;
 
 const siteTitle = `${title} · ${profile.handle}`;
+const ogImage = `${String(Astro.site ?? 'https://samindrasamiya.site').replace(/\/$/, '')}/favicon.png`;
 ---
 
 <!doctype html>
@@ -36,20 +41,26 @@ const siteTitle = `${title} · ${profile.handle}`;
   <meta property="og:title" content={siteTitle} />
   <meta property="og:description" content={description} />
   <meta property="og:site_name" content={profile.handle} />
+  <meta property="og:image" content={ogImage} />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content={siteTitle} />
   <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/favicon.png" />
 
-  <!-- RSS -->
-  <link rel="alternate" type="application/rss+xml" title={`${profile.handle} research feed`} href="/rss.xml" />
+  <!-- RSS — only advertised when research posts exist -->
+  {hasResearchPosts && (
+    <link rel="alternate" type="application/rss+xml"
+          title={`${profile.handle} research feed`} href="/rss.xml" />
+  )}
 
-  <!-- Pagefind UI styles (injected at build) -->
+  <!-- Pagefind UI styles -->
   <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <!-- pagefind-ui.js is loaded lazily by SearchBar.astro on first search trigger -->
 
   <!-- Global styles injected via frontmatter import -->
 </head>
@@ -59,6 +70,9 @@ const siteTitle = `${title} · ${profile.handle}`;
   <a class="skip-link" href="#main-content">Skip to content</a>
 
   <slot name="nav" />
+
+  <!-- Pagefind search modal (available globally) -->
+  <SearchBar />
 
   <main id="main-content" class="flex-1">
     <slot />

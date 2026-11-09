@@ -1,36 +1,29 @@
----
-// SearchBar — Pagefind modal triggered by Cmd/Ctrl+K or search button
----
+<!-- Pagefind modal triggered by Cmd/Ctrl+K or search button in Nav -->
 
-<!-- Pagefind modal trigger button (hidden, used as JS handle) -->
+<!-- Hidden trigger handle (Nav wires click → open) -->
 <div id="pagefind-search" class="hidden" aria-hidden="true"></div>
 
-<!-- Pagefind UI container -->
-<div id="pagefind-ui-container"
+<!-- Modal overlay -->
+<div
+  id="pagefind-ui-container"
   class="fixed inset-0 z-[200] flex items-start justify-center pt-24 px-4 bg-bg/80 backdrop-blur hidden"
-  role="dialog" aria-modal="true" aria-label="Search">
-
+  role="dialog"
+  aria-modal="true"
+  aria-label="Search"
+>
   <div class="w-full max-w-xl bg-surface border border-border rounded-lg shadow-2xl overflow-hidden">
     <div id="pagefind-ui-mount"></div>
-    <p class="font-mono text-xs text-muted px-4 pb-3">Press <kbd class="border border-border px-1.5 py-0.5 rounded">Esc</kbd> to close</p>
+    <p class="font-mono text-xs text-muted px-4 pb-3">
+      Press <kbd class="border border-border px-1.5 py-0.5 rounded">Esc</kbd> to close
+    </p>
   </div>
 </div>
 
 <script>
-  // Pagefind UI initialisation
-  declare const PagefindUI: any;
-
-  function initSearch() {
+  (function () {
     const container = document.getElementById('pagefind-ui-container')!;
-    const trigger = document.getElementById('pagefind-search')!;
-
-    if (typeof PagefindUI === 'undefined') return;
-
-    new PagefindUI({
-      element: '#pagefind-ui-mount',
-      showSubResults: true,
-      translations: { placeholder: 'Search…' },
-    });
+    const trigger   = document.getElementById('pagefind-search')!;
+    let   mounted   = false;
 
     function open() {
       container.classList.remove('hidden');
@@ -42,21 +35,57 @@
       container.classList.add('hidden');
     }
 
-    trigger.addEventListener('click', open);
+    function mountUI() {
+      if (mounted) return;
+      // @ts-ignore — PagefindUI is injected by the pagefind build output
+      if (typeof window.PagefindUI === 'undefined') return;
+      // @ts-ignore
+      new window.PagefindUI({
+        element: '#pagefind-ui-mount',
+        showSubResults: true,
+        translations: { placeholder: 'Search…' },
+      });
+      mounted = true;
+    }
+
+    trigger.addEventListener('click', () => { mountUI(); open(); });
 
     container.addEventListener('click', (e) => {
       if (e.target === container) close();
     });
 
     document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        mountUI();
+        open();
+      }
       if (e.key === 'Escape') close();
     });
-  }
 
-  // Pagefind script is injected by the build; wait for it
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSearch);
-  } else {
-    initSearch();
-  }
+    // Load pagefind-ui.js lazily on first trigger, so it doesn't block page load
+    function loadPagefind() {
+      if (document.querySelector('script[data-pagefind]')) return;
+      const s = document.createElement('script');
+      s.src = '/pagefind/pagefind-ui.js';
+      s.dataset.pagefind = '1';
+      s.onload = mountUI;
+      document.head.appendChild(s);
+    }
+
+    // Wire the Nav search button (rendered by Nav.astro)
+    const navBtn = document.getElementById('search-trigger');
+    if (navBtn) {
+      navBtn.addEventListener('click', () => { loadPagefind(); mountUI(); open(); });
+    }
+
+    // Also prefetch pagefind on first user interaction (hover/focus on nav btn)
+    navBtn?.addEventListener('mouseenter', loadPagefind, { once: true });
+    navBtn?.addEventListener('focusin',    loadPagefind, { once: true });
+
+    // Keyboard shortcut handler (before pagefind loads, trigger load)
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') loadPagefind();
+    }, { once: true });
+  })();
 </script>
