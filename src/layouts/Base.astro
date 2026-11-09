@@ -21,7 +21,7 @@ const {
 } = Astro.props;
 
 const siteTitle = `${title} · ${profile.handle}`;
-const ogImage = `${Astro.site ?? 'https://samindrasamiya.site'}/favicon.png`;
+const ogImage = `${String(Astro.site ?? 'https://samindrasamiya.site').replace(/\/$/, '')}/favicon.png`;
 ---
 
 <!doctype html>
