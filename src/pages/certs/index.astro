@@ -5,8 +5,21 @@ import Footer from '@/components/Footer.astro';
 import { certs } from '@/data/certs';
 import { profile } from '@/data/profile';
 
-// Only render certs that have at least a name and issuer
-const visibleCerts = certs.filter(c => c.name && c.issuer);
+// Group by issuer
+const byIssuer = certs.reduce<Record<string, typeof certs>>((acc, cert) => {
+  (acc[cert.issuer] ??= []).push(cert);
+  return acc;
+}, {});
+
+const issuerOrder = [
+  'Google / Coursera',
+  'Cisco Networking Academy',
+  'ISC2',
+];
+const orderedIssuers = [
+  ...issuerOrder.filter(i => i in byIssuer),
+  ...Object.keys(byIssuer).filter(i => !issuerOrder.includes(i)),
+];
 ---
 
 <Base title="Certifications" description={`Certifications held by ${profile.handle}.`}>
@@ -16,50 +29,72 @@ const visibleCerts = certs.filter(c => c.name && c.issuer);
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
     <p class="font-mono text-xs text-muted mb-6">~/certs</p>
     <h1 class="text-3xl font-semibold text-text mb-3">Certifications</h1>
-    <p class="text-muted mb-10 max-w-xl leading-relaxed">
-      Earned credentials. No placeholders.
+    <p class="text-muted mb-12 max-w-xl leading-relaxed">
+      Earned credentials. Verified on Credly and Coursera.
     </p>
 
-    {visibleCerts.length === 0 ? (
-      <p class="font-mono text-sm text-muted">No certifications listed yet.</p>
-    ) : (
-      <ul class="space-y-4 max-w-2xl" role="list">
-        {visibleCerts.map(cert => (
-          <li class="border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4
-                     hover:border-accent/30 transition-colors">
-            <div class="flex items-start gap-4">
-              {cert.badgeUrl && (
-                <img
-                  src={cert.badgeUrl}
-                  alt={`${cert.name} badge`}
-                  width="56"
-                  height="56"
-                  class="shrink-0 rounded"
-                  loading="lazy"
-                />
+    {orderedIssuers.map(issuer => (
+      <section class="mb-12">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-6 flex items-center gap-3">
+          {issuer}
+          <span class="flex-1 h-px bg-border"></span>
+        </h2>
+
+        <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5" role="list">
+          {byIssuer[issuer].map(cert => (
+            <li>
+              {cert.url ? (
+                <a
+                  href={cert.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group flex flex-col items-center gap-3 p-4 rounded-lg border border-border
+                         hover:border-accent/40 hover:bg-surface transition-colors text-center"
+                  aria-label={`${cert.name} — verify on ${cert.url.includes('credly') ? 'Credly' : 'Coursera'}`}
+                >
+                  {cert.badgeImg ? (
+                    <img
+                      src={cert.badgeImg}
+                      alt={`${cert.name} badge`}
+                      width="100"
+                      height="100"
+                      class="rounded-lg group-hover:scale-105 transition-transform duration-200"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div class="w-[100px] h-[100px] rounded-lg bg-surface border border-border flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                           fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                      </svg>
+                    </div>
+                  )}
+                  <div>
+                    <p class="text-xs font-medium text-text leading-snug group-hover:text-accent transition-colors">
+                      {cert.name}
+                    </p>
+                    {cert.year && (
+                      <p class="font-mono text-[10px] text-muted/60 mt-1">{cert.year}</p>
+                    )}
+                    <p class="font-mono text-[10px] text-accent/70 mt-1">verify ↗</p>
+                  </div>
+                </a>
+              ) : (
+                <div class="flex flex-col items-center gap-3 p-4 rounded-lg border border-border text-center">
+                  <div class="w-[100px] h-[100px] rounded-lg bg-surface border border-border flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted">
+                      <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                    </svg>
+                  </div>
+                  <p class="text-xs font-medium text-text leading-snug">{cert.name}</p>
+                </div>
               )}
-              <div>
-                <p class="text-sm font-medium text-text leading-snug">{cert.name}</p>
-                <p class="font-mono text-xs text-muted mt-0.5">{cert.issuer}</p>
-                {cert.year && (
-                  <p class="font-mono text-xs text-muted/60 mt-0.5">{cert.year}</p>
-                )}
-              </div>
-            </div>
-            {cert.url && (
-              <a
-                href={cert.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="font-mono text-xs text-accent hover:underline shrink-0
-                       focus-visible:outline-2 focus-visible:outline-accent rounded"
-              >
-                verify ↗
-              </a>
-            )}
-          </li>
-        ))}
-      </ul>
-    )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
   </div>
 </Base>
