@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Dig Dug
   machine on TryHackMe.
-slug: dig-dug
+
 disclosure_ok: false
 ---
 

@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Whiterose
   machine on TryHackMe.
-slug: whiterose
+
 disclosure_ok: false
 ---
 

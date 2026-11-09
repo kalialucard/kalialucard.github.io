@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Anonforce
   machine on TryHackMe.
-slug: anonforce
+
 disclosure_ok: false
 ---
 

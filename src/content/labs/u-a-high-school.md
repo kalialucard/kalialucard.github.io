@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the U.a. High
   School machine on TryHackMe.
-slug: ua-high-school
+
 disclosure_ok: false
 ---
 

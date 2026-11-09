@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Hack Smarter
   Security machine on TryHackMe.
-slug: hack-smarter-security
+
 disclosure_ok: false
 ---
 

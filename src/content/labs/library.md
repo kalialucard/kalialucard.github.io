@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Library
   machine on TryHackMe.
-slug: library
+
 disclosure_ok: false
 ---
 

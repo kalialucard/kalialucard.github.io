@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the 0day machine
   on TryHackMe.
-slug: 0day
+
 disclosure_ok: false
 ---
 

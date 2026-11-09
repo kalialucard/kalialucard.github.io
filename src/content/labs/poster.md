@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Poster machine
   on TryHackMe.
-slug: poster
+
 disclosure_ok: false
 ---
 

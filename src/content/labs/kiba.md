@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Kiba machine
   on TryHackMe.
-slug: kiba
+
 disclosure_ok: false
 ---
 

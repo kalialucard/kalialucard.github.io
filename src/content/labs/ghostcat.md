@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Ghostcat
   machine on TryHackMe.
-slug: ghostcat
+
 disclosure_ok: false
 ---
 
@@ -36,7 +36,7 @@ sudo apt update && sudo apt install -y nmap git python3 python3-pip john gpg
 # Note: gpg2john is usually included with the 'john' package or in john-contrib.
 ```
 
-**Placeholders for outputs:** replace the `&lt;!-- ADD: ... --&gt;` markers with your screenshot filenames or paste terminal outputs in the indicated places.
+**Placeholders for outputs:** replace the `<!-- ADD: ... -->` markers with your screenshot filenames or paste terminal outputs in the indicated places.
 
 
 ## 1) Recon — Nmap
@@ -171,7 +171,7 @@ gpg: WARNING: cipher algorithm CAST5 not found in recipient preferences
 merlin:asuyusdoiuqoilkda312j31k2j123j1g23g12k3g12kj3gk12jg3k12j3kj123j
 ```
 
-> The decrypted content gave `merlin:&lt;password&gt;` which you can use to log in as `merlin`.
+> The decrypted content gave `merlin:<password>` which you can use to log in as `merlin`.
 
 **Security note:** avoid publishing real, sensitive passwords on public repos — replace with `[REDACTED]` if you post publicly.
 

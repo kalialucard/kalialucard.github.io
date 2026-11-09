@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Jax Sucks
   Alot machine on TryHackMe.
-slug: jax-sucks-alot
+
 disclosure_ok: false
 ---
 

@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Ignite machine
   on TryHackMe.
-slug: ignite
+
 disclosure_ok: false
 ---
 

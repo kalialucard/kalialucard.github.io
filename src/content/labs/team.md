@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Team machine
   on TryHackMe.
-slug: team
+
 disclosure_ok: false
 ---
 

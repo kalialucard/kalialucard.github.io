@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Spring machine
   on TryHackMe.
-slug: spring
+
 disclosure_ok: false
 ---
 

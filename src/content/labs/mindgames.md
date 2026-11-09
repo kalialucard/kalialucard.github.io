@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Mindgames
   machine on TryHackMe.
-slug: mindgames
+
 disclosure_ok: false
 ---
 

@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Valley machine
   on TryHackMe.
-slug: valley
+
 disclosure_ok: false
 ---
 

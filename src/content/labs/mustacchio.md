@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Mustacchio
   machine on TryHackMe.
-slug: mustacchio
+
 disclosure_ok: false
 ---
 

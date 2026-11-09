@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Plotted
   Tms machine on TryHackMe.
-slug: plotted-tms
+
 disclosure_ok: false
 ---
 

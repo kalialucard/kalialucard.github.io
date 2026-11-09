@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Crack The
   Hash machine on TryHackMe.
-slug: crack-the-hash
+
 disclosure_ok: false
 ---
 

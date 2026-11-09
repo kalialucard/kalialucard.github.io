@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Wekor machine
   on TryHackMe.
-slug: wekor
+
 disclosure_ok: false
 ---
 

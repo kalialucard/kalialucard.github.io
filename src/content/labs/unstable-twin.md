@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Unstable
   Twin machine on TryHackMe.
-slug: unstable-twin
+
 disclosure_ok: false
 ---
 

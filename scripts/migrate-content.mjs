@@ -30,18 +30,65 @@ function writeFile(p, content) {
   console.log('  wrote', path.relative(ROOT, p));
 }
 
+/**
+ * Find the end of the YAML frontmatter block.
+ * Uses line-boundary matching so "---" embedded in a YAML value (e.g. slug: foo---bar)
+ * is not mistaken for the closing delimiter.
+ * Returns the index of the start of "---" on its own line, or -1 if not found.
+ */
+function findFrontmatterEnd(raw) {
+  // raw starts with "---\n" (or "---\r\n").  Search from offset 3 for a line that is exactly "---".
+  const lines = raw.split(/\r?\n/);
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trimEnd() === '---') {
+      // Return the byte offset of this line's start
+      let offset = 0;
+      for (let j = 0; j < i; j++) {
+        offset += lines[j].length + (raw.includes('\r\n') ? 2 : 1);
+      }
+      return offset;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Normalise a YAML frontmatter block:
+ * - Convert inline tag arrays  tags: [a, b, c]  to block style
+ * - Strip the `slug:` field (we compute slug from filename)
+ * - Convert CRLF to LF
+ */
+function normaliseFrontmatter(fm) {
+  return fm
+    .replace(/\r\n/g, '\n')
+    // Convert inline array: tags: [a, b, c] → block style
+    .replace(/^(tags:\s*)\[([^\]]*)\]\s*$/m, (_, key, inner) => {
+      const items = inner.split(',').map(s => s.trim()).filter(Boolean);
+      return key + '\n' + items.map(t => `  - ${t}`).join('\n');
+    })
+    // Strip slug: field (computed from filename; having it in YAML causes confusion)
+    .replace(/^slug:.*$/m, '')
+    // Collapse multiple blank lines inside frontmatter
+    .replace(/\n{3,}/g, '\n\n');
+}
+
 /** Inject `disclosure_ok: false` into YAML frontmatter if not present. */
 function ensureDisclosureOk(raw) {
-  if (raw.startsWith('---')) {
-    // Has frontmatter
-    const end = raw.indexOf('---', 3);
-    if (end === -1) return raw;
-    const fm = raw.slice(3, end);
-    if (/disclosure_ok\s*:/i.test(fm)) return raw; // already set
-    return `---${fm}disclosure_ok: false\n${raw.slice(end)}`;
+  // Normalise line endings first
+  const normalised = raw.replace(/\r\n/g, '\n');
+
+  if (normalised.startsWith('---')) {
+    const end = findFrontmatterEnd(normalised);
+    if (end === -1) return normalised;
+    const fm = normaliseFrontmatter(normalised.slice(3, end));
+    const body = normalised.slice(end + 3); // skip the closing "---"
+    if (/disclosure_ok\s*:/i.test(fm)) {
+      return `---${fm}---${body}`;
+    }
+    return `---${fm}disclosure_ok: false\n---${body}`;
   }
   // No frontmatter — wrap the whole file
-  return `---\ntitle: "${path.basename(raw.slice(0, 40)).replace(/"/g, '')}"\ndisclosure_ok: false\n---\n\n${raw}`;
+  return `---\ntitle: "${path.basename(normalised.slice(0, 40)).replace(/"/g, '')}"\ndisclosure_ok: false\n---\n\n${normalised}`;
 }
 
 // ── NEEDS-MY-REVIEW list (excluded from migration) ───────────────────────────
@@ -50,6 +97,8 @@ const SKIP_LABS_PREFIXES = [
   'borderlands',
   'brooklyn-nine-nine',
   'cct2019',
+  'cherry-blossom',  // bad source: no proper frontmatter
+  'cherryblossom',   // bad source: no proper frontmatter
   'crocc-crew',
   'cyborg',
   'daves-blog',
@@ -157,23 +206,27 @@ if (fs.existsSync(notesSrc)) {
     const { overview = '', commands = '' } = parts;
 
     // Extract frontmatter from overview if present
-    let fm = `---\ntitle: "${slug}"\ntags: []\n---\n`;
+    let fm = `---\ntitle: "${slug}"\ntags: []\ndisclosure_ok: false\n---\n`;
     let overviewBody = overview;
 
     if (overview.startsWith('---')) {
-      const end = overview.indexOf('---', 3);
+      const normOv = overview.replace(/\r\n/g, '\n');
+      const end = findFrontmatterEnd(normOv);
       if (end !== -1) {
-        fm = overview.slice(0, end + 3) + '\n';
-        overviewBody = overview.slice(end + 3).trim();
+        const fmRaw = normaliseFrontmatter(normOv.slice(3, end));
+        const hasDisclosure = /disclosure_ok\s*:/i.test(fmRaw);
+        fm = `---${fmRaw}${hasDisclosure ? '' : 'disclosure_ok: false\n'}---\n`;
+        overviewBody = normOv.slice(end + 3).trim();
       }
     }
 
     // Strip frontmatter from commands section, keep body
     let commandsBody = commands;
     if (commands.startsWith('---')) {
-      const end = commands.indexOf('---', 3);
+      const normCmd = commands.replace(/\r\n/g, '\n');
+      const end = findFrontmatterEnd(normCmd);
       if (end !== -1) {
-        commandsBody = commands.slice(end + 3).trim();
+        commandsBody = normCmd.slice(end + 3).trim();
       }
     }
 

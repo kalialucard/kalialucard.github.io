@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Startup
   machine on TryHackMe.
-slug: startup
+
 disclosure_ok: false
 ---
 

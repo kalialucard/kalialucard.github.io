@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Techsupp0rt1
   machine on TryHackMe.
-slug: techsupp0rt1
+
 disclosure_ok: false
 ---
 

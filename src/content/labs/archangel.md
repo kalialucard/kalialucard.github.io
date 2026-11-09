@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Archangel
   machine on TryHackMe.
-slug: archangel
+
 disclosure_ok: false
 ---
 

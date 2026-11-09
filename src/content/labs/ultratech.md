@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Ultratech
   machine on TryHackMe.
-slug: ultratech
+
 disclosure_ok: false
 ---
 

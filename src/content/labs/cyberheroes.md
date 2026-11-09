@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Cyberheroes
   machine on TryHackMe.
-slug: cyberheroes
+
 disclosure_ok: false
 ---
 

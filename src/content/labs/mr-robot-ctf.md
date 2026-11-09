@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Mr Robot
   CTF machine on TryHackMe.
-slug: mr-robot-ctf
+
 disclosure_ok: false
 ---
 

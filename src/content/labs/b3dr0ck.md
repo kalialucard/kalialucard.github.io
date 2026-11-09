@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the B3dr0ck
   machine on TryHackMe.
-slug: b3dr0ck
+
 disclosure_ok: false
 ---
 

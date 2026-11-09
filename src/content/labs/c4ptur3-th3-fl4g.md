@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the C4ptur3
   Th3 Fl4g machine on TryHackMe.
-slug: c4ptur3-th3-fl4g
+
 disclosure_ok: false
 ---
 

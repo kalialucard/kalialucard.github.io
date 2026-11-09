@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Agent Sudo
   machine on TryHackMe.
-slug: agent-sudo
+
 disclosure_ok: false
 ---
 

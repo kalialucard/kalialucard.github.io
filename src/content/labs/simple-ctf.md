@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Simple CTF
   machine on TryHackMe.
-slug: simple-ctf
+
 disclosure_ok: false
 ---
 

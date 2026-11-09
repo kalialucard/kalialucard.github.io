@@ -5,7 +5,7 @@ category: tryhackme
 tags: tryhackme, ctf
 description: Detailed technical walkthrough and security analysis for the Cyberlens
   machine on TryHackMe.
-slug: cyberlens
+
 disclosure_ok: false
 ---
 
@@ -422,5 +422,5 @@ meterpreter >
 2. **Enumerate for escalation options** → run `multi/recon/local_exploit_suggester` against that session.  
     Result: a shortlist of local exploits that look promising (e.g., AlwaysInstallElevated flagged).
     
-3. **Use the chosen local exploit** → `use exploit/windows/local/always_install_elevated`; `set SESSION &lt;id&gt;`; `exploit`.  
+3. **Use the chosen local exploit** → `use exploit/windows/local/always_install_elevated`; `set SESSION <id>`; `exploit`.  
     Result: the module builds and runs an MSI installer on target and (if successful) gives you a SYSTEM session. Then you `cd` into `C:\Users\Administrator\Desktop` and `cat admin.txt` — admin flag acquired.
