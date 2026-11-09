@@ -41,5 +41,6 @@ jobs:
             --exclude "^mailto:"
             --exclude "^https?://(hackerone|hackenproof|hackthebox|tryhackme|cantina|remedy)\."
             --exclude "^https://samindrasamiya\.site"
+            --exclude "^https?://(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|0\.0\.0\.0)"
             "${{ github.workspace }}/dist/**/*.html"
           fail: true
