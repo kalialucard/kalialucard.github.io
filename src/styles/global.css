@@ -1,0 +1,155 @@
+/* ============================================================
+   Design tokens — single source for all CSS variables
+   ============================================================ */
+
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/700.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg:        #0a0c10;
+  --surface:   #11151b;
+  --surface-2: #161b24;
+  --border:    #1f2630;
+  --text:      #e6e9ee;
+  --muted:     #8b95a5;
+  --accent:    #2dd4bf;
+  --accent-dk: #1ca896;
+}
+
+/* ============================================================
+   Base reset / global
+   ============================================================ */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  /* Respect prefers-reduced-motion everywhere */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Visible focus states — WCAG AA */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Skip-to-content */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    z-index: 9999;
+    border-radius: 0 0 4px 4px;
+  }
+  .skip-link:focus { top: 0; }
+
+  a { color: var(--accent); }
+  a:hover { color: var(--accent-dk); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+  }
+}
+
+/* ============================================================
+   Shiki code blocks
+   ============================================================ */
+@layer components {
+  .code-block-wrapper {
+    position: relative;
+    margin: 1.5rem 0;
+  }
+
+  .code-block-wrapper pre {
+    background: var(--surface) !important;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .code-block-wrapper pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.6875rem;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface-2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .copy-btn:hover, .copy-btn:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn[data-copied="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+}
+
+/* ============================================================
+   Thin noise background texture (pure CSS, no image)
+   ============================================================ */
+@layer utilities {
+  .noise-bg {
+    position: relative;
+    isolation: isolate;
+  }
+  .noise-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Subtle grid lines */
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

@@ -1,0 +1,39 @@
+---
+// SeverityChip — color-coded severity/status chip
+export type Severity = 'info' | 'low' | 'medium' | 'high' | 'critical';
+export type Status = 'draft' | 'published' | 'redacted';
+
+interface Props {
+  severity?: Severity;
+  status?: Status;
+  label?: string; // override display text
+}
+
+const { severity, status, label } = Astro.props;
+
+const severityMap: Record<Severity, string> = {
+  info:     'bg-blue-900/40 text-blue-300 border-blue-700/50',
+  low:      'bg-green-900/40 text-green-300 border-green-700/50',
+  medium:   'bg-yellow-900/40 text-yellow-300 border-yellow-700/50',
+  high:     'bg-orange-900/40 text-orange-300 border-orange-700/50',
+  critical: 'bg-red-900/40 text-red-300 border-red-700/50',
+};
+
+const statusMap: Record<Status, string> = {
+  draft:     'bg-surface text-muted border-border',
+  published: 'bg-accent/10 text-accent border-accent/40',
+  redacted:  'bg-surface text-muted border-border line-through',
+};
+
+const classes = severity
+  ? severityMap[severity]
+  : status
+    ? statusMap[status]
+    : 'bg-surface text-muted border-border';
+
+const display = label ?? severity ?? status ?? '';
+---
+
+<span class={`inline-flex items-center font-mono text-xs px-2 py-0.5 rounded border ${classes}`}>
+  {display}
+</span>

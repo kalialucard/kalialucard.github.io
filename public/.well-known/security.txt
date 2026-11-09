@@ -1,0 +1,3 @@
+Contact: mailto:kalialucard@proton.me
+Preferred-Languages: en
+Canonical: https://samindrasamiya.site/.well-known/security.txt

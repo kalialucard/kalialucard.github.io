@@ -1,0 +1,92 @@
+---
+// Nav.astro — sticky top navigation with prompt-style breadcrumb
+const segments = Astro.url.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+const crumb = segments.length ? '~/' + segments.join('/') : '~';
+---
+
+<nav class="sticky top-0 z-50 bg-bg/90 backdrop-blur-sm border-b border-border">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <!-- Logo / home link -->
+    <a href="/" class="font-mono text-sm text-accent hover:text-accent/80 transition-colors" aria-label="Home">
+      {crumb}
+    </a>
+
+    <!-- Desktop nav links -->
+    <ul class="hidden sm:flex items-center gap-6 font-mono text-xs text-muted" role="list">
+      <li><a href="/research/" class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">research</a></li>
+      <li><a href="/labs/" class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">labs</a></li>
+      <li><a href="/notes/" class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">notes</a></li>
+      <li><a href="/about/" class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">about</a></li>
+      <li>
+        <a href="/contact/"
+           class="border border-accent/40 text-accent px-3 py-1 rounded hover:bg-accent/10 transition-colors focus-visible:outline-2 focus-visible:outline-accent">
+          contact
+        </a>
+      </li>
+      <li>
+        <button id="search-trigger" aria-label="Open search (Ctrl+K)"
+          class="flex items-center gap-1.5 text-muted hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <span class="hidden lg:inline opacity-60">⌘K</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Mobile hamburger -->
+    <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu"
+      class="sm:hidden p-2 text-muted hover:text-text focus-visible:outline-2 focus-visible:outline-accent rounded">
+      <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+      <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true" class="hidden">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+      <span class="sr-only">Toggle menu</span>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="sm:hidden hidden border-t border-border bg-surface">
+    <ul class="flex flex-col font-mono text-sm py-2" role="list">
+      <li><a href="/research/" class="block px-6 py-3 text-muted hover:text-text hover:bg-bg/50 transition-colors">research</a></li>
+      <li><a href="/labs/" class="block px-6 py-3 text-muted hover:text-text hover:bg-bg/50 transition-colors">labs</a></li>
+      <li><a href="/notes/" class="block px-6 py-3 text-muted hover:text-text hover:bg-bg/50 transition-colors">notes</a></li>
+      <li><a href="/about/" class="block px-6 py-3 text-muted hover:text-text hover:bg-bg/50 transition-colors">about</a></li>
+      <li><a href="/contact/" class="block px-6 py-3 text-accent hover:bg-bg/50 transition-colors">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  // Mobile toggle
+  const toggle = document.getElementById('mobile-menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const iconMenu = document.getElementById('icon-menu')!;
+  const iconClose = document.getElementById('icon-close')!;
+
+  toggle.addEventListener('click', () => {
+    const open = menu.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(open));
+    iconMenu.classList.toggle('hidden', open);
+    iconClose.classList.toggle('hidden', !open);
+  });
+
+  // Keyboard shortcut Ctrl/Cmd+K → open search
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      (document.getElementById('pagefind-search') as HTMLElement | null)?.click();
+    }
+  });
+
+  // Wire search trigger button
+  document.getElementById('search-trigger')?.addEventListener('click', () => {
+    (document.getElementById('pagefind-search') as HTMLElement | null)?.click();
+  });
+</script>

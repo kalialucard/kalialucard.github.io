@@ -1,0 +1,62 @@
+---
+// SearchBar — Pagefind modal triggered by Cmd/Ctrl+K or search button
+---
+
+<!-- Pagefind modal trigger button (hidden, used as JS handle) -->
+<div id="pagefind-search" class="hidden" aria-hidden="true"></div>
+
+<!-- Pagefind UI container -->
+<div id="pagefind-ui-container"
+  class="fixed inset-0 z-[200] flex items-start justify-center pt-24 px-4 bg-bg/80 backdrop-blur hidden"
+  role="dialog" aria-modal="true" aria-label="Search">
+
+  <div class="w-full max-w-xl bg-surface border border-border rounded-lg shadow-2xl overflow-hidden">
+    <div id="pagefind-ui-mount"></div>
+    <p class="font-mono text-xs text-muted px-4 pb-3">Press <kbd class="border border-border px-1.5 py-0.5 rounded">Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script>
+  // Pagefind UI initialisation
+  declare const PagefindUI: any;
+
+  function initSearch() {
+    const container = document.getElementById('pagefind-ui-container')!;
+    const trigger = document.getElementById('pagefind-search')!;
+
+    if (typeof PagefindUI === 'undefined') return;
+
+    new PagefindUI({
+      element: '#pagefind-ui-mount',
+      showSubResults: true,
+      translations: { placeholder: 'Search…' },
+    });
+
+    function open() {
+      container.classList.remove('hidden');
+      const input = container.querySelector<HTMLInputElement>('input[type="text"]');
+      input?.focus();
+    }
+
+    function close() {
+      container.classList.add('hidden');
+    }
+
+    trigger.addEventListener('click', open);
+
+    container.addEventListener('click', (e) => {
+      if (e.target === container) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  }
+
+  // Pagefind script is injected by the build; wait for it
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearch);
+  } else {
+    initSearch();
+  }
+</script>

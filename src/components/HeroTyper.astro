@@ -1,0 +1,46 @@
+---
+// HeroTyper — typewriter effect that respects prefers-reduced-motion
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className = '' } = Astro.props;
+---
+
+<span id="hero-typer" class={`inline-block ${className}`} aria-label={text} data-text={text}>
+  <!-- JS will animate; noscript shows full text immediately -->
+  <noscript>{text}</noscript>
+</span>
+
+<script>
+  const el = document.getElementById('hero-typer');
+  if (!el) throw new Error('hero-typer not found');
+
+  const text = el.dataset.text ?? '';
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReduced) {
+    el.textContent = text;
+  } else {
+    el.textContent = '';
+    let i = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'inline-block w-0.5 h-[1em] bg-accent ml-0.5 align-middle animate-pulse';
+    cursor.setAttribute('aria-hidden', 'true');
+    el.appendChild(cursor);
+
+    const type = () => {
+      if (i < text.length) {
+        el.insertBefore(document.createTextNode(text[i]!), cursor);
+        i++;
+        setTimeout(type, 45 + Math.random() * 20);
+      } else {
+        // blink cursor then fade it after 3s
+        setTimeout(() => cursor.remove(), 3000);
+      }
+    };
+
+    // Small delay so page load is visible first
+    setTimeout(type, 500);
+  }
+</script>
