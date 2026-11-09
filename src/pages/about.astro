@@ -1,22 +1,21 @@
 ---
+// src/pages/about.astro — full rewrite
 import Base from '@/layouts/Base.astro';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
 import PlatformLinks from '@/components/PlatformLinks.astro';
 import { profile } from '@/data/profile';
+import { focusAreas } from '@/data/focus';
+import credlyData from '@/data/credly.json';
 
-const focusAreas = [
-  'Web application security',
-  'API security testing',
-  'Network and infrastructure penetration testing',
-  'Bug bounty and responsible disclosure',
-  'Government VDP participation (details confidential)',
-];
-
-const certs = profile.certs.filter(c => c.name && !c.name.startsWith('TODO'));
+const ciscoCount = (credlyData as any[]).filter((b: any) => b.issuer === 'Cisco Networking Academy').length;
+const description = `${profile.nickname} (${profile.handle}) — web application, API, network and infrastructure security testing; smart contract security review; bug bounty and vulnerability disclosure programs.`;
 ---
 
-<Base title="About" description={`About ${profile.handle} — ${profile.positioning}`}>
+<Base
+  title="About"
+  description={description}
+>
   <Nav slot="nav" />
   <Footer slot="footer" />
 
@@ -24,8 +23,23 @@ const certs = profile.certs.filter(c => c.name && !c.name.startsWith('TODO'));
     <p class="font-mono text-xs text-muted mb-6">~/about</p>
 
     <div class="max-w-2xl">
-      <h1 class="text-3xl font-semibold text-text mb-2 font-mono">{profile.handle}</h1>
-      <p class="font-mono text-sm text-accent mb-6">{profile.positioning}</p>
+      <h1 class="text-3xl font-semibold text-text mb-1">{profile.nickname}</h1>
+      <p class="font-mono text-sm text-accent mb-6">{profile.handle}</p>
+
+      <!-- Bio -->
+      <section class="mb-10">
+        <p class="text-muted leading-relaxed mb-3">
+          Security researcher focused on web application, API, network and infrastructure security
+          testing, and smart contract security review. Participates in bug bounty and vulnerability
+          disclosure programs. Practice write-ups live in Labs. Works on {profile.environments}.
+        </p>
+        <p class="text-sm text-muted">
+          {profile.govVdp}{' '}
+          <a href="/policy/" class="text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded text-xs">
+            Disclosure policy →
+          </a>
+        </p>
+      </section>
 
       <!-- Focus -->
       <section class="mb-10">
@@ -34,40 +48,41 @@ const certs = profile.certs.filter(c => c.name && !c.name.startsWith('TODO'));
           {focusAreas.map(area => (
             <li class="flex items-start gap-3 text-sm text-text/90">
               <span class="font-mono text-accent mt-0.5 shrink-0">›</span>
-              {area}
+              {area.title}
             </li>
           ))}
         </ul>
       </section>
 
-      <!-- Platforms -->
+      <!-- Profiles -->
       <section class="mb-10">
         <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Profiles</h2>
         <PlatformLinks />
       </section>
 
-      <!-- Certifications (only show if name is defined) -->
-      {certs.length > 0 && (
-        <section id="certs" class="mb-10">
-          <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Certifications</h2>
-          <ul class="space-y-3" role="list">
-            {certs.map(cert => (
-              <li class="border border-border rounded p-4 flex items-start justify-between gap-4">
-                <div>
-                  <p class="text-sm text-text font-medium">{cert.name}</p>
-                  {cert.issuer && <p class="font-mono text-xs text-muted mt-0.5">{cert.issuer}</p>}
-                </div>
-                {cert.url && (
-                  <a href={cert.url} target="_blank" rel="noopener noreferrer"
-                     class="font-mono text-xs text-accent hover:underline shrink-0 focus-visible:outline-2 focus-visible:outline-accent rounded">
-                    verify ↗
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <!-- Credentials summary -->
+      <section class="mb-10">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Credentials & Training</h2>
+        <ul class="space-y-1.5 text-sm text-muted" role="list">
+          <li class="flex items-start gap-2">
+            <span class="font-mono text-accent shrink-0">›</span>
+            Google IT Support Professional Certificate — Google / Coursera
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="font-mono text-accent shrink-0">›</span>
+            {ciscoCount} Cisco Networking Academy course badge{ciscoCount !== 1 ? 's' : ''} (student-level)
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="font-mono text-accent shrink-0">›</span>
+            ISC2 Candidate membership
+          </li>
+        </ul>
+        <p class="mt-3">
+          <a href="/credentials/" class="font-mono text-xs text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+            View credentials →
+          </a>
+        </p>
+      </section>
     </div>
   </div>
 </Base>

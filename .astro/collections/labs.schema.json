@@ -48,6 +48,18 @@
           "type": "boolean",
           "default": false
         },
+        "section": {
+          "type": "string",
+          "enum": [
+            "tryhackme",
+            "hackthebox",
+            "solidity",
+            "web3",
+            "personal",
+            "hobby"
+          ],
+          "default": "tryhackme"
+        },
         "platform": {
           "type": "string"
         },

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "efc9b5bf-d030-4933-8f0f-1879c67547a1",
+    "name": "Ethical Hacker",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-09-30",
+    "expires_at_date": null,
+    "level": "Intermediate",
+    "url": "https://www.credly.com/badges/efc9b5bf-d030-4933-8f0f-1879c67547a1",
+    "local_image": "/badges/efc9b5bf-d030-4933-8f0f-1879c67547a1.png"
+  },
+  {
+    "id": "992ebeca-0bf1-4724-84b8-31027d769049",
+    "name": "Cyber Threat Management",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-23",
+    "expires_at_date": null,
+    "level": "Intermediate",
+    "url": "https://www.credly.com/badges/992ebeca-0bf1-4724-84b8-31027d769049",
+    "local_image": "/badges/992ebeca-0bf1-4724-84b8-31027d769049.png"
+  },
+  {
+    "id": "0ecec055-2b5e-428b-9bef-e24071717618",
+    "name": "Endpoint Security",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-23",
+    "expires_at_date": null,
+    "level": "Intermediate",
+    "url": "https://www.credly.com/badges/0ecec055-2b5e-428b-9bef-e24071717618",
+    "local_image": "/badges/0ecec055-2b5e-428b-9bef-e24071717618.png"
+  },
+  {
+    "id": "f986b6e7-26af-4988-9233-b905cd225237",
+    "name": "Junior Cybersecurity Analyst Career Path",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-23",
+    "expires_at_date": null,
+    "level": "Intermediate",
+    "url": "https://www.credly.com/badges/f986b6e7-26af-4988-9233-b905cd225237",
+    "local_image": "/badges/f986b6e7-26af-4988-9233-b905cd225237.png"
+  },
+  {
+    "id": "f2effa0d-af42-4747-a3e4-b7bd970a6067",
+    "name": "Network Defense",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-23",
+    "expires_at_date": null,
+    "level": "Intermediate",
+    "url": "https://www.credly.com/badges/f2effa0d-af42-4747-a3e4-b7bd970a6067",
+    "local_image": "/badges/f2effa0d-af42-4747-a3e4-b7bd970a6067.png"
+  },
+  {
+    "id": "7182777f-8d34-42bf-b84e-c5815dc148e1",
+    "name": "Networking Devices and Initial Configuration",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-23",
+    "expires_at_date": null,
+    "level": null,
+    "url": "https://www.credly.com/badges/7182777f-8d34-42bf-b84e-c5815dc148e1",
+    "local_image": "/badges/7182777f-8d34-42bf-b84e-c5815dc148e1.png"
+  },
+  {
+    "id": "dbb3fc3b-8b4e-4e48-babd-c902d3d42fd8",
+    "name": "Computer Hardware Basics",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-22",
+    "expires_at_date": null,
+    "level": "Foundational",
+    "url": "https://www.credly.com/badges/dbb3fc3b-8b4e-4e48-babd-c902d3d42fd8",
+    "local_image": "/badges/dbb3fc3b-8b4e-4e48-babd-c902d3d42fd8.png"
+  },
+  {
+    "id": "19801ee8-0fd5-4011-8471-e929f7ca210b",
+    "name": "Introduction to Cybersecurity",
+    "issuer": "Cisco",
+    "issued_at_date": "2025-05-21",
+    "expires_at_date": null,
+    "level": null,
+    "url": "https://www.credly.com/badges/19801ee8-0fd5-4011-8471-e929f7ca210b",
+    "local_image": "/badges/19801ee8-0fd5-4011-8471-e929f7ca210b.png"
+  },
+  {
+    "id": "63534d16-2964-449b-adca-dbaa22953082",
+    "name": "Networking Basics",
+    "issuer": "Cisco",
+    "issued_at_date": "2023-11-20",
+    "expires_at_date": null,
+    "level": null,
+    "url": "https://www.credly.com/badges/63534d16-2964-449b-adca-dbaa22953082",
+    "local_image": "/badges/63534d16-2964-449b-adca-dbaa22953082.png"
+  },
+  {
+    "id": "b1157d42-ae48-4c72-be65-bd00ede97bff",
+    "name": "ISC2 Candidate",
+    "issuer": "ISC2",
+    "issued_at_date": "2025-09-30",
+    "expires_at_date": "2026-09-30",
+    "level": null,
+    "url": "https://www.credly.com/badges/b1157d42-ae48-4c72-be65-bd00ede97bff",
+    "local_image": "/badges/b1157d42-ae48-4c72-be65-bd00ede97bff.png"
+  }
+]

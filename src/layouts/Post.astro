@@ -16,7 +16,8 @@ interface Props {
   targetClass?: string;
   status?: 'draft' | 'published' | 'redacted';
   tags?: string[];
-  section: 'research' | 'labs';
+  /** Breadcrumb prefix: 'research', 'labs', or 'labs/tryhackme' etc. */
+  section: string;
   slug: string;
   readingTime?: number;
 }
