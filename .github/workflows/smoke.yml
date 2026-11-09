@@ -1,0 +1,107 @@
+name: Post-Deploy Smoke Test
+
+on:
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to test"
+        default: "https://samindrasamiya.site"
+
+jobs:
+  smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ github.event.inputs.base_url || 'https://samindrasamiya.site' }}
+
+    steps:
+      - name: Wait for CDN propagation
+        run: sleep 15
+
+      - name: Assert / — Astro generator tag present
+        run: |
+          body=$(curl -sf "$BASE/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: missing generator meta"; exit 1; }
+          echo "$body" | grep -qi 'astro' || { echo "FAIL: not an Astro page"; exit 1; }
+          echo "PASS: / serves Astro page"
+
+      - name: Assert / — no banned strings
+        run: |
+          body=$(curl -sf "$BASE/")
+          for banned in "Access_Level" "Technical Intelligence" "Encryption_Status" "Signal_Strength" "System_Status" "Powered by kalialucard" "New York" "Cisco" "ISC2"; do
+            if echo "$body" | grep -q "$banned"; then
+              echo "FAIL: banned string found on /: $banned"
+              exit 1
+            fi
+          done
+          echo "PASS: no banned strings on /"
+
+      - name: Assert /about/ — real page (not redirect)
+        run: |
+          body=$(curl -sf "$BASE/about/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /about/ not an Astro page"; exit 1; }
+          len=$(echo "$body" | wc -c)
+          [ "$len" -gt 2000 ] || { echo "FAIL: /about/ too short ($len bytes) — probably a redirect stub"; exit 1; }
+          echo "PASS: /about/ serves real page ($len bytes)"
+
+      - name: Assert /contact/ — real page
+        run: |
+          body=$(curl -sf "$BASE/contact/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /contact/ not an Astro page"; exit 1; }
+          len=$(echo "$body" | wc -c)
+          [ "$len" -gt 2000 ] || { echo "FAIL: /contact/ too short ($len bytes)"; exit 1; }
+          echo "PASS: /contact/ serves real page ($len bytes)"
+
+      - name: Assert /certs/ — real page
+        run: |
+          body=$(curl -sf "$BASE/certs/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /certs/ not an Astro page"; exit 1; }
+          echo "PASS: /certs/ serves real page"
+
+      - name: Assert /robots.txt — exists and has Sitemap
+        run: |
+          body=$(curl -sf "$BASE/robots.txt")
+          echo "$body" | grep -qi 'sitemap' || { echo "FAIL: robots.txt missing Sitemap line"; exit 1; }
+          echo "PASS: robots.txt present with Sitemap"
+
+      - name: Assert /.well-known/security.txt — exists and has Expires
+        run: |
+          body=$(curl -sf "$BASE/.well-known/security.txt")
+          echo "$body" | grep -qi 'expires' || { echo "FAIL: security.txt missing Expires field"; exit 1; }
+          echo "$body" | grep -qi 'policy' || { echo "FAIL: security.txt missing Policy field"; exit 1; }
+          echo "PASS: security.txt well-formed"
+
+      - name: Assert redirect stubs — 200 not 404
+        run: |
+          for path in /about.html /certificates.html /devhub.html /writeups.html /projects.html; do
+            code=$(curl -so /dev/null -w "%{http_code}" "$BASE$path")
+            [ "$code" = "200" ] || { echo "FAIL: $path returned $code"; exit 1; }
+            echo "PASS: $path → $code"
+          done
+
+      - name: Assert /projects/application-web-security.html — not 404
+        run: |
+          code=$(curl -so /dev/null -w "%{http_code}" "$BASE/projects/application-web-security.html")
+          [ "$code" = "200" ] || { echo "FAIL: /projects/application-web-security.html returned $code"; exit 1; }
+          echo "PASS: application-web-security.html → $code"
+
+      - name: Link check — crawl live site
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >
+            --no-progress
+            --exclude-loopback
+            --exclude "mailto:"
+            --exclude "^https://tryhackme\\.com"
+            --exclude "^https://hackerone\\.com"
+            --exclude "^https://hackenproof\\.com"
+            --exclude "^https://app\\.hackthebox\\.com"
+            --exclude "^https://coursera\\.org"
+            --max-concurrency 4
+            --timeout 20
+            ${{ env.BASE }}
+          fail: true
+        continue-on-error: true  # link check is advisory; don't block deploy

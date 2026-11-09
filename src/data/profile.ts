@@ -4,9 +4,12 @@
  */
 
 export const profile = {
-  name: "Samindra Samiya",
+  /**
+   * Public handle — this is the only identity shown on the site.
+   * `name` and `location` are intentionally not rendered anywhere.
+   */
   handle: "kalialucard",
-  location: "Sri Lanka",
+  email_display: "kalialucard@proton.me",
   /** One-line positioning shown in hero and OG description. */
   positioning: "Web application and infrastructure security researcher",
 
@@ -66,7 +69,7 @@ export const profile = {
       name: "Google IT Support Professional Certificate",
       issuer: "Google / Coursera",
       year: undefined, // TODO: add year e.g. 2023
-      url: undefined,  // TODO: add Credly/Coursera verification link
+      url: "https://coursera.org/share/b10e2589550e1570dbad49eb220b36e7",
     },
   ],
 } as const;

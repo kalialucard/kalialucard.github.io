@@ -1,0 +1,65 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { certs } from '@/data/certs';
+import { profile } from '@/data/profile';
+
+// Only render certs that have at least a name and issuer
+const visibleCerts = certs.filter(c => c.name && c.issuer);
+---
+
+<Base title="Certifications" description={`Certifications held by ${profile.handle}.`}>
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <p class="font-mono text-xs text-muted mb-6">~/certs</p>
+    <h1 class="text-3xl font-semibold text-text mb-3">Certifications</h1>
+    <p class="text-muted mb-10 max-w-xl leading-relaxed">
+      Earned credentials. No placeholders.
+    </p>
+
+    {visibleCerts.length === 0 ? (
+      <p class="font-mono text-sm text-muted">No certifications listed yet.</p>
+    ) : (
+      <ul class="space-y-4 max-w-2xl" role="list">
+        {visibleCerts.map(cert => (
+          <li class="border border-border rounded-lg p-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4
+                     hover:border-accent/30 transition-colors">
+            <div class="flex items-start gap-4">
+              {cert.badgeUrl && (
+                <img
+                  src={cert.badgeUrl}
+                  alt={`${cert.name} badge`}
+                  width="56"
+                  height="56"
+                  class="shrink-0 rounded"
+                  loading="lazy"
+                />
+              )}
+              <div>
+                <p class="text-sm font-medium text-text leading-snug">{cert.name}</p>
+                <p class="font-mono text-xs text-muted mt-0.5">{cert.issuer}</p>
+                {cert.year && (
+                  <p class="font-mono text-xs text-muted/60 mt-0.5">{cert.year}</p>
+                )}
+              </div>
+            </div>
+            {cert.url && (
+              <a
+                href={cert.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-mono text-xs text-accent hover:underline shrink-0
+                       focus-visible:outline-2 focus-visible:outline-accent rounded"
+              >
+                verify ↗
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>

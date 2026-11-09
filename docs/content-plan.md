@@ -271,3 +271,18 @@ These posts were generated from the fake `content/projects/` markdown files.
 8. **sn1per.md vs sniper.md** — Are these the same tool? Confirm canonical.
 9. **20 writeups with no frontmatter** (Borderlands, Brooklyn Nine Nine, CCT2019, Crocc Crew, Cyborg, Dave's Blog, Enterprise, Envizon, Iron Corp, Misguided Ghosts, Opacity, Ra, Retro, Sea Surfer, Squid Game, Thesus, VulnNet-Internal, Walkin, Year of the Rabbit) — Review and add frontmatter, or they remain excluded.
 10. **Certificates** — Credly link or image for Google IT Support cert, if you have it.
+
+---
+
+## Notes — Flagged for Review (added 2026-11-09)
+
+The following notes have issues. They are **not deleted** — they appear in the site but are flagged here for your attention. Tell me which ones to unlist (I will add `listed: false` to the frontmatter) or rewrite.
+
+| File | Issue | Recommendation |
+|---|---|---|
+| `wordpress.md` | Mixed nmap+wpscan walkthrough with tutorial tone; originally labelled "beginner" | Rewrite as a clean reference or unlist |
+| `sn1per.md` + `sniper.md` | Two files for the same tool — different capitalisation | Keep one, unlist the other; confirm which |
+| `wpscan.md` | Title was "Wpscan Command List" (now fixed to "WPScan"); description was boilerplate | Fixed — confirm the new description is acceptable |
+| Any note with description `"Top 10 essential commands and a master guide…"` | AI-generated boilerplate description | Will replace with one-line tool description on your request |
+| Notes with tag `beginner` only | Tag stripped from filter chips; tag remains in frontmatter | Let me know if you want it fully removed from source files |
+

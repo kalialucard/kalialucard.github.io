@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://samindrasamiya.site/sitemap-index.xml

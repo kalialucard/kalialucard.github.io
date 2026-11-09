@@ -6,12 +6,11 @@ enrich: false
 image: assets/cmd-thumb.png
 tags: cybersecurity, nmap, wpscan, wordpress, reconnaissance, enumeration, web application
   security, beginner guide, hacking, network scanning, vulnerability analysis
-description: A detailed, beginner-friendly walkthrough on using Nmap and WPScan for
-  web application reconnaissance and enumeration, focusing on WordPress security.
+description: WordPress security testing with Nmap and WPScan — reconnaissance and vulnerability enumeration.
 last_enriched: '2026-01-07'
 ---
 
-Welcome, aspiring cybersecurity professionals! Today, we embark on a journey to understand how attackers (and importantly, defenders!) explore and identify weaknesses in web applications, specifically those built on WordPress. We'll be using two powerful command-line tools: **Nmap** and **WPScan**. Our goal is to go from raw technical output to a clear, step-by-step educational walkthrough, so you can grasp the 'why' and 'how' behind each command.
+WordPress security testing using **Nmap** and **WPScan** — reconnaissance to vulnerability enumeration.
 
 ## Reconnaissance
 

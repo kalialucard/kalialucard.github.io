@@ -5,7 +5,7 @@ import Footer from '@/components/Footer.astro';
 import { profile } from '@/data/profile';
 ---
 
-<Base title="Contact" description={`Contact ${profile.name}`}>
+<Base title="Contact" description={`Contact ${profile.handle}`}>
   <Nav slot="nav" />
   <Footer slot="footer" />
 
@@ -47,8 +47,8 @@ import { profile } from '@/data/profile';
       <section class="border border-border rounded-lg p-5">
         <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-2">Responsible Disclosure</h2>
         <p class="text-sm text-muted leading-relaxed">
-          A <a href="/.well-known/security.txt" class="text-accent hover:underline">security.txt</a> file
-          is published at the standard location. For vulnerability reports against this site, please email directly.
+          For vulnerability reports against this site, please email directly at
+          <a href={`mailto:${profile.links.email}`} class="text-accent hover:underline">{profile.links.email}</a>.
         </p>
       </section>
     </div>
