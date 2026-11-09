@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import pagefind from 'astro-pagefind';
+import { remarkEscapeRawHtml } from './scripts/remark-escape-html.mjs';
 
 export default defineConfig({
   site: 'https://samindrasamiya.site',
@@ -25,8 +26,11 @@ export default defineConfig({
       theme: 'one-dark-pro',
       wrap: false,
     },
-    // Disable raw HTML processing — the migrated content contains HTML tags
-    // that crash hast-util-raw. We render them as escaped text instead.
+    // Convert raw HTML nodes to text before rehype-raw sees them.
+    // This prevents hast-util-raw from crashing on nmap output / pipe chars
+    // in migrated content that contains literal < > outside code fences.
+    remarkPlugins: [remarkEscapeRawHtml],
+    // Disable raw HTML processing — treat < > in prose as literal text
     rehypePlugins: [],
   },
   vite: {

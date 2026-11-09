@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "migrate": "node scripts/migrate-content.mjs",
-    "redirects": "node scripts/generate-redirects.mjs"
+    "redirects": "node scripts/generate-redirects.mjs",
+    "postinstall": "node scripts/patch-hast-util-raw.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",
