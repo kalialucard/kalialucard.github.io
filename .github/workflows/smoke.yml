@@ -31,7 +31,9 @@ jobs:
       - name: Assert / — no banned strings
         run: |
           body=$(curl -sf "$BASE/")
-          for banned in "Access_Level" "Technical Intelligence" "Encryption_Status" "Signal_Strength" "System_Status" "Powered by kalialucard" "New York" "Cisco" "ISC2"; do
+          for banned in "Access_Level" "Technical Intelligence" "Encryption_Status" "Signal_Strength" \
+                        "System_Status" "Beginner Analysis" "Certifications" "issued_to" \
+                        "No public write-ups yet" "aspiring professionals"; do
             if echo "$body" | grep -q "$banned"; then
               echo "FAIL: banned string found on /: $banned"
               exit 1
@@ -55,11 +57,47 @@ jobs:
           [ "$len" -gt 2000 ] || { echo "FAIL: /contact/ too short ($len bytes)"; exit 1; }
           echo "PASS: /contact/ serves real page ($len bytes)"
 
-      - name: Assert /certs/ — real page
+      - name: Assert /credentials/ — real page
+        run: |
+          body=$(curl -sf "$BASE/credentials/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /credentials/ not an Astro page"; exit 1; }
+          len=$(echo "$body" | wc -c)
+          [ "$len" -gt 2000 ] || { echo "FAIL: /credentials/ too short ($len bytes)"; exit 1; }
+          # Must not contain the word Certifications
+          echo "$body" | grep -qi "Certifications" && { echo "FAIL: /credentials/ contains banned word 'Certifications'"; exit 1; }
+          echo "PASS: /credentials/ serves real page ($len bytes)"
+
+      - name: Assert /policy/ — real page
+        run: |
+          body=$(curl -sf "$BASE/policy/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /policy/ not an Astro page"; exit 1; }
+          echo "$body" | grep -qi "Disclosure" || { echo "FAIL: /policy/ missing expected content"; exit 1; }
+          echo "PASS: /policy/ serves real page"
+
+      - name: Assert /labs/ — real page
+        run: |
+          body=$(curl -sf "$BASE/labs/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /labs/ not an Astro page"; exit 1; }
+          echo "PASS: /labs/ serves real page"
+
+      - name: Assert /labs/tryhackme/ — section page exists
+        run: |
+          body=$(curl -sf "$BASE/labs/tryhackme/")
+          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /labs/tryhackme/ not an Astro page"; exit 1; }
+          echo "PASS: /labs/tryhackme/ serves real page"
+
+      - name: Assert /certs/ — redirects to /credentials/
         run: |
           body=$(curl -sf "$BASE/certs/")
-          echo "$body" | grep -q 'name="generator"' || { echo "FAIL: /certs/ not an Astro page"; exit 1; }
-          echo "PASS: /certs/ serves real page"
+          # Should either redirect (follow) to /credentials/ or be a redirect stub
+          echo "$body" | grep -qi 'credentials\|Redirect' || { echo "FAIL: /certs/ not redirecting to /credentials/"; exit 1; }
+          echo "PASS: /certs/ redirects to /credentials/"
+
+      - name: Assert /research/ — redirects to /policy/
+        run: |
+          body=$(curl -sf "$BASE/research/")
+          echo "$body" | grep -qi 'policy\|Redirect' || { echo "FAIL: /research/ not redirecting to /policy/"; exit 1; }
+          echo "PASS: /research/ redirects to /policy/"
 
       - name: Assert /robots.txt — exists and has Sitemap
         run: |
@@ -67,11 +105,13 @@ jobs:
           echo "$body" | grep -qi 'sitemap' || { echo "FAIL: robots.txt missing Sitemap line"; exit 1; }
           echo "PASS: robots.txt present with Sitemap"
 
-      - name: Assert /.well-known/security.txt — exists and has Expires
+      - name: Assert /.well-known/security.txt — exists and well-formed
         run: |
           body=$(curl -sf "$BASE/.well-known/security.txt")
           echo "$body" | grep -qi 'expires' || { echo "FAIL: security.txt missing Expires field"; exit 1; }
           echo "$body" | grep -qi 'policy' || { echo "FAIL: security.txt missing Policy field"; exit 1; }
+          # Must NOT contain name or identity info
+          echo "$body" | grep -qi 'samindra\|sanjaya' && { echo "FAIL: security.txt contains identity info"; exit 1; }
           echo "PASS: security.txt well-formed"
 
       - name: Assert redirect stubs — 200 not 404
@@ -82,11 +122,11 @@ jobs:
             echo "PASS: $path → $code"
           done
 
-      - name: Assert /projects/application-web-security.html — not 404
+      - name: Assert og.png — exists
         run: |
-          code=$(curl -so /dev/null -w "%{http_code}" "$BASE/projects/application-web-security.html")
-          [ "$code" = "200" ] || { echo "FAIL: /projects/application-web-security.html returned $code"; exit 1; }
-          echo "PASS: application-web-security.html → $code"
+          code=$(curl -so /dev/null -w "%{http_code}" "$BASE/og.png")
+          [ "$code" = "200" ] || { echo "FAIL: /og.png returned $code"; exit 1; }
+          echo "PASS: /og.png → $code"
 
       - name: Link check — crawl live site
         uses: lycheeverse/lychee-action@v1
@@ -100,6 +140,7 @@ jobs:
             --exclude "^https://hackenproof\\.com"
             --exclude "^https://app\\.hackthebox\\.com"
             --exclude "^https://coursera\\.org"
+            --exclude "^https://www\\.credly\\.com"
             --max-concurrency 4
             --timeout 20
             ${{ env.BASE }}

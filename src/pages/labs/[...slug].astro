@@ -1,30 +1,28 @@
 ---
-import Post from '@/layouts/Post.astro';
+// src/pages/labs/[...slug].astro — Redirect legacy /labs/<slug>/ → /labs/tryhackme/<slug>/
+// All existing posts were TryHackMe; new posts use the [section]/[slug] route.
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('labs');
   return posts.map(post => ({
     params: { slug: post.slug },
-    props: { post },
+    props: { slug: post.slug, section: post.data.section ?? 'tryhackme' },
   }));
 }
 
-const { post } = Astro.props;
-const { Content } = await post.render();
-
-const words = post.body?.split(/\s+/).length ?? 0;
-const readingTime = words > 0 ? Math.max(1, Math.ceil(words / 200)) : undefined;
+const { slug, section } = Astro.props;
+// Use 301 redirect via Astro.redirect for SSG: render a redirect page
 ---
-
-<Post
-  title={post.data.title}
-  description={post.data.description}
-  date={post.data.date}
-  tags={post.data.tags}
-  section="labs"
-  slug={post.slug}
-  readingTime={readingTime}
->
-  <Content />
-</Post>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting…</title>
+  <meta http-equiv="refresh" content={`0; url=/labs/${section}/${slug}/`} />
+  <link rel="canonical" href={`/labs/${section}/${slug}/`} />
+</head>
+<body>
+  <p>Redirecting to <a href={`/labs/${section}/${slug}/`}>/labs/{section}/{slug}/</a></p>
+</body>
+</html>

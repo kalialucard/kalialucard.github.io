@@ -1,0 +1,175 @@
+---
+// src/pages/labs/[section]/index.astro — Section hub page
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { getCollection } from 'astro:content';
+import { labSections } from '@/data/labSections';
+
+export async function getStaticPaths() {
+  return labSections.map(section => ({
+    params: { section: section.id },
+    props: { section },
+  }));
+}
+
+const { section } = Astro.props;
+
+const allPosts = await getCollection('labs');
+const posts = allPosts
+  .filter(p => (p.data.section ?? 'tryhackme') === section.id)
+  .filter(p => p.data.date)
+  .sort((a, b) => b.data.date!.getTime() - a.data.date!.getTime());
+
+const BOILERPLATE_RE = /^(Detailed technical walkthrough and security analysis|Technical documentation and research)/i;
+const HIDDEN_TAGS = new Set(['beginner', 'aspiring', 'command reference']);
+
+function displayDesc(post: (typeof posts)[number]): string | undefined {
+  const d = post.data.description;
+  return !d || BOILERPLATE_RE.test(d) ? undefined : d;
+}
+
+// Collect tags for filter chips
+const allTags = [...new Set(
+  posts.flatMap(p => (p.data.tags ?? []).filter(t => !HIDDEN_TAGS.has(t.toLowerCase())))
+)].sort();
+
+// Group posts by year
+const byYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.date!.getFullYear();
+  if (!byYear.has(year)) byYear.set(year, []);
+  byYear.get(year)!.push(post);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+
+const description = section.description;
+const isEmpty = posts.length === 0;
+---
+
+<Base
+  title={section.title}
+  description={description}
+>
+  <Nav slot="nav" />
+  <Footer slot="footer" hasLabsPosts={posts.length > 0} />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <p class="font-mono text-xs text-muted mb-6">~/labs/{section.id}</p>
+
+    <div class="mb-10">
+      <h1 class="text-3xl font-semibold text-text mb-2">{section.title}</h1>
+      <p class="text-muted max-w-xl">{description}</p>
+      {!isEmpty && (
+        <p class="font-mono text-xs text-muted mt-2">
+          {posts.length} write-up{posts.length !== 1 ? 's' : ''}
+        </p>
+      )}
+    </div>
+
+    {isEmpty ? (
+      <div class="border border-border rounded-lg p-8 text-center">
+        <p class="font-mono text-sm text-muted">Coming soon.</p>
+        <p class="text-xs text-muted mt-2 opacity-60">No write-ups in this section yet.</p>
+      </div>
+    ) : (
+      <>
+        {/* Tag filter chips */}
+        {allTags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mb-8" id="tag-filters" role="group" aria-label="Filter by tag">
+            <button data-tag="" class="tag-btn active font-mono text-xs px-3 py-1.5 rounded border border-accent/50 text-accent bg-accent/10">
+              all
+            </button>
+            {allTags.map(t => (
+              <button data-tag={t} class="tag-btn font-mono text-xs px-3 py-1.5 rounded border border-border text-muted hover:border-accent/30 hover:text-text transition-colors">
+                #{t}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Posts grouped by year */}
+        <div id="posts-list">
+          {years.map(year => (
+            <div class="year-group mb-10" data-year={year}>
+              <p class="font-mono text-xs text-muted uppercase tracking-widest mb-4">{year}</p>
+              <ul class="space-y-3" role="list">
+                {byYear.get(year)!.map(post => {
+                  const desc = displayDesc(post);
+                  const visibleTags = (post.data.tags ?? []).filter(t => !HIDDEN_TAGS.has(t.toLowerCase()));
+                  const words = post.body?.split(/\s+/).length ?? 0;
+                  const readingTime = words > 0 ? Math.max(1, Math.ceil(words / 200)) : undefined;
+                  return (
+                    <li
+                      class="post-row border border-border rounded-lg p-4 hover:border-accent/30 transition-colors"
+                      data-tags={JSON.stringify(post.data.tags ?? [])}
+                    >
+                      <a href={`/labs/${section.id}/${post.slug}/`}
+                         class="group flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 focus-visible:outline-2 focus-visible:outline-accent rounded">
+                        <div class="flex-1 min-w-0">
+                          <h2 class="text-text font-medium group-hover:text-accent transition-colors mb-1">
+                            {post.data.title}
+                          </h2>
+                          {desc && <p class="text-xs text-muted leading-relaxed">{desc}</p>}
+                          {visibleTags.length > 0 && (
+                            <div class="flex flex-wrap gap-1.5 mt-2">
+                              {visibleTags.slice(0, 5).map(t => (
+                                <span class="font-mono text-[0.65rem] text-muted border border-border/40 px-1.5 py-0.5 rounded-full">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div class="shrink-0 text-right">
+                          {post.data.date && (
+                            <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-muted block">
+                              {post.data.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </time>
+                          )}
+                          {readingTime && (
+                            <span class="font-mono text-xs text-muted/60 block">{readingTime} min read</span>
+                          )}
+                        </div>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+</Base>
+
+<script>
+  const tagBtns = document.querySelectorAll<HTMLButtonElement>('.tag-btn');
+  const rows = document.querySelectorAll<HTMLElement>('.post-row');
+  let activeTag = '';
+
+  tagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTag = btn.dataset.tag === activeTag ? '' : (btn.dataset.tag ?? '');
+      tagBtns.forEach(b => {
+        const isActive = b.dataset.tag === activeTag;
+        b.classList.toggle('active', isActive);
+        b.classList.toggle('border-accent/50', isActive);
+        b.classList.toggle('text-accent', isActive);
+        b.classList.toggle('bg-accent/10', isActive);
+        b.classList.toggle('border-border', !isActive);
+        b.classList.toggle('text-muted', !isActive);
+      });
+      rows.forEach(row => {
+        const tags: string[] = JSON.parse(row.dataset.tags ?? '[]');
+        row.style.display = !activeTag || tags.includes(activeTag) ? '' : 'none';
+      });
+      // Hide empty year groups
+      document.querySelectorAll<HTMLElement>('.year-group').forEach(group => {
+        const visible = [...group.querySelectorAll<HTMLElement>('.post-row')].some(r => r.style.display !== 'none');
+        (group as HTMLElement).style.display = visible ? '' : 'none';
+      });
+    });
+  });
+</script>

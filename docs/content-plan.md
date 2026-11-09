@@ -286,3 +286,31 @@ The following notes have issues. They are **not deleted** — they appear in the
 | Any note with description `"Top 10 essential commands and a master guide…"` | AI-generated boilerplate description | Will replace with one-line tool description on your request |
 | Notes with tag `beginner` only | Tag stripped from filter chips; tag remains in frontmatter | Let me know if you want it fully removed from source files |
 
+
+---
+
+## K. Research Pages — Deleted (2026-11-09, feat/site-overhaul-v2)
+
+The following pages were part of the old research section. The `src/content/research/` directory was empty (no posts), so no content was lost. Pages deleted and replaced with a redirect `/research/*` → `/policy/`.
+
+| File | Action |
+|---|---|
+| `src/pages/research/index.astro` | **DELETED** — replaced by `/policy/` page |
+| `src/pages/research/[...slug].astro` | **DELETED** — no posts existed; redirect to `/policy/` |
+
+Redirect: any visitor hitting `/research/` or `/research/*` now lands at `/policy/`.
+
+---
+
+## L. Suspicious Lab Title Spellings — Flagged for Your Review (2026-11-09)
+
+These filenames / titles look like they may contain typos or intentional alternate spellings. No posts deleted or renamed. Review and confirm.
+
+| Slug / File | Displayed Title | Issue |
+|---|---|---|
+| `rabit-hole.md` | Rabit Hole | Likely "Rabbit Hole" — confirm |
+| `plotted-tms.md` | Plotted Tms | Likely "Plotted TMS" or abbreviation — confirm |
+| `u-a-high-school.md` | U.a. High School | Likely "U.A. High School" (My Hero Academia room) — confirm capitalisation |
+| `jax-sucks-alot.md` | Jax Sucks Alot | "A lot" is two words — confirm intentional |
+| `hack-smarter-security.md` | Hack Smarter Security | Confirm this is the room's actual name |
+| `c4ptur3-th3-fl4g.md` | C4ptur3 Th3 Fl4g | Leet-speak — confirm intentional (matches THM room) |

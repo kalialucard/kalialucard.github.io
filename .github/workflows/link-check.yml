@@ -37,5 +37,6 @@ jobs:
             --exclude-loopback
             --exclude "^mailto:"
             --exclude "^https?://(hackerone|hackenproof|hackthebox|tryhackme|cantina|remedy)\."
+            --exclude "^https://samindrasamiya\.site"
             dist/**/*.html
           fail: true

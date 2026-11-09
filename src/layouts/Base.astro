@@ -8,20 +8,25 @@ interface Props {
   description?: string;
   ogType?: 'website' | 'article';
   canonicalURL?: string;
-  /** Pass true on pages that have research posts to enable RSS discovery */
+  /** Pass true on pages that have labs posts to enable RSS discovery */
+  hasLabsPosts?: boolean;
+  /** Legacy alias — treated same as hasLabsPosts */
   hasResearchPosts?: boolean;
 }
 
 const {
   title,
-  description = profile.positioning,
+  description = profile.tagline,
   ogType = 'website',
   canonicalURL = Astro.url.href,
+  hasLabsPosts = false,
   hasResearchPosts = false,
 } = Astro.props;
 
-const siteTitle = `${title} · ${profile.handle}`;
-const ogImage = `${String(Astro.site ?? 'https://samindrasamiya.site').replace(/\/$/, '')}/favicon.png`;
+const showRss = hasLabsPosts || hasResearchPosts;
+const siteTitle = `${title} · ${profile.nickname} (${profile.handle})`;
+const siteBase = String(Astro.site ?? 'https://samindrasamiya.site').replace(/\/$/, '');
+const ogImage = `${siteBase}/og.png`;
 ---
 
 <!doctype html>
@@ -40,11 +45,11 @@ const ogImage = `${String(Astro.site ?? 'https://samindrasamiya.site').replace(/
   <meta property="og:url" content={canonicalURL} />
   <meta property="og:title" content={siteTitle} />
   <meta property="og:description" content={description} />
-  <meta property="og:site_name" content={profile.handle} />
+  <meta property="og:site_name" content={`${profile.nickname} (${profile.handle})`} />
   <meta property="og:image" content={ogImage} />
 
   <!-- Twitter -->
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={siteTitle} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
@@ -52,17 +57,14 @@ const ogImage = `${String(Astro.site ?? 'https://samindrasamiya.site').replace(/
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/favicon.png" />
 
-  <!-- RSS — only advertised when research posts exist -->
-  {hasResearchPosts && (
+  <!-- RSS — only advertised when labs posts exist -->
+  {showRss && (
     <link rel="alternate" type="application/rss+xml"
-          title={`${profile.handle} research feed`} href="/rss.xml" />
+          title={`${profile.nickname} (${profile.handle}) — Labs`} href="/rss.xml" />
   )}
 
   <!-- Pagefind UI styles -->
   <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-  <!-- pagefind-ui.js is loaded lazily by SearchBar.astro on first search trigger -->
-
-  <!-- Global styles injected via frontmatter import -->
 </head>
 
 <body class="min-h-screen flex flex-col bg-bg text-text antialiased noise-bg">

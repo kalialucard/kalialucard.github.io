@@ -3,9 +3,12 @@ import { profile } from '@/data/profile';
 const year = new Date().getFullYear();
 
 interface Props {
+  hasLabsPosts?: boolean;
+  /** Legacy alias */
   hasResearchPosts?: boolean;
 }
-const { hasResearchPosts = false } = Astro.props;
+const { hasLabsPosts = false, hasResearchPosts = false } = Astro.props;
+const showRss = hasLabsPosts || hasResearchPosts;
 ---
 
 <footer class="border-t border-border mt-16">
@@ -32,7 +35,13 @@ const { hasResearchPosts = false } = Astro.props;
             </a>
           </li>
         )}
-        {hasResearchPosts && (
+        <li>
+          <a href="/policy/"
+             class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">
+            policy
+          </a>
+        </li>
+        {showRss && (
           <li>
             <a href="/rss.xml"
                class="hover:text-text transition-colors focus-visible:outline-2 focus-visible:outline-accent rounded">

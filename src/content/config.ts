@@ -38,13 +38,17 @@ const research = defineCollection({
  * labs/ — CTF / HTB / THM write-ups.
  * disclosure_ok defaults to false; shown regardless (CTF rooms are public).
  */
+const LAB_SECTION_IDS = ['tryhackme', 'hackthebox', 'solidity', 'web3', 'personal', 'hobby'] as const;
+
 const labs = defineCollection({
   type: 'content',
   schema: base.extend({
     disclosure_ok: z.boolean().default(false),
+    /** Section this post belongs to — drives /labs/<section>/<slug>/ routing. */
+    section: z.enum(LAB_SECTION_IDS).default('tryhackme'),
     // old CMS uses `category` field; normalise to `platform`
     platform: z.string().optional(),
-    category: z.string().optional(),   // legacy alias for platform
+    category: z.string().optional(),   // legacy alias
     difficulty: z.string().optional(), // e.g. "Easy", "Medium"
     slug: z.string().optional(),       // legacy field — ignored
     enrich: z.boolean().optional(),    // legacy field — ignored

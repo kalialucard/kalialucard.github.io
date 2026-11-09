@@ -1,15 +1,13 @@
 ---
 import { profile } from '@/data/profile';
 
-// Only show platforms that have a URL defined
-const bountyPlatforms = profile.platforms.bounty.filter(p => p.url);
-const labPlatforms = profile.platforms.labs.filter(p => p.url);
-const allPlatforms = [...bountyPlatforms, ...labPlatforms];
+// Only show profiles that have a URL defined (TODO fields hidden)
+const visibleProfiles = profile.profiles.filter(p => p.url !== undefined);
 ---
 
-{allPlatforms.length > 0 && (
+{visibleProfiles.length > 0 && (
   <div class="flex flex-wrap items-center gap-3">
-    {allPlatforms.map(p => (
+    {visibleProfiles.map(p => (
       <a
         href={p.url}
         target="_blank"

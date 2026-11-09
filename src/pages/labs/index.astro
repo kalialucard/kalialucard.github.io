@@ -1,166 +1,72 @@
 ---
+// src/pages/labs/index.astro — Labs hub: 3×2 section grid
 import Base from '@/layouts/Base.astro';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
 import { getCollection } from 'astro:content';
+import { labSections } from '@/data/labSections';
 
-const posts = (await getCollection('labs'))
-  .sort((a, b) => {
-    const da = a.data.date ? a.data.date.getTime() : 0;
-    const db = b.data.date ? b.data.date.getTime() : 0;
-    return db - da;
-  });
+const allPosts = (await getCollection('labs')).filter(p => p.data.date);
 
-// Use `platform` if set, else fall back to `category` (old CMS used category: tryhackme)
-function getPlatform(post: (typeof posts)[number]): string {
-  if (post.data.platform) return post.data.platform;
-  if (post.data.category) {
-    const c = post.data.category.toLowerCase();
-    if (c === 'tryhackme') return 'TryHackMe';
-    if (c === 'hackthebox' || c === 'htb') return 'HackTheBox';
-    return post.data.category;
-  }
-  return 'TryHackMe'; // default — all current labs are THM
-}
+// Compute per-section stats
+const sectionStats = labSections.map(section => {
+  const posts = allPosts
+    .filter(p => (p.data.section ?? 'tryhackme') === section.id)
+    .sort((a, b) => b.data.date!.getTime() - a.data.date!.getTime());
+  const latest = posts[0]?.data.date;
+  return { section, count: posts.length, latest };
+});
 
-// Tags to suppress from filter chips
-const HIDDEN_TAGS = new Set(['beginner', 'ctf', 'command reference']);
-// Auto-generated description pattern to suppress
-const BOILERPLATE_RE = /^Detailed technical walkthrough and security analysis/i;
-
-function displayDesc(post: (typeof posts)[number]): string | undefined {
-  const d = post.data.description;
-  if (!d || BOILERPLATE_RE.test(d)) return undefined;
-  return d;
-}
-
-// Collect unique platforms and filtered tags
-const allPlatforms = [...new Set(posts.map(getPlatform))].sort();
-const allTags = [...new Set(
-  posts.flatMap(p => (p.data.tags ?? []).filter(t => !HIDDEN_TAGS.has(t.toLowerCase())))
-)].sort();
+const totalPosts = allPosts.length;
 ---
 
-<Base title="Labs" description="HackTheBox and TryHackMe write-ups by kalialucard.">
+<Base
+  title="Labs"
+  description="Security lab write-ups across TryHackMe, Hack The Box, smart contract training, and more."
+  hasLabsPosts={totalPosts > 0}
+>
   <Nav slot="nav" />
-  <Footer slot="footer" />
+  <Footer slot="footer" hasLabsPosts={totalPosts > 0} />
 
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
     <p class="font-mono text-xs text-muted mb-6">~/labs</p>
     <h1 class="text-3xl font-semibold text-text mb-3">Labs</h1>
-    <p class="text-muted mb-8 max-w-xl">
-      HackTheBox and TryHackMe machine write-ups. Practice environment — not real-world disclosures.
+    <p class="text-muted mb-10 max-w-xl">
+      Practice write-ups from training platforms and personal exercises. These are not real-world
+      targets or vulnerability disclosures.
     </p>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-2 mb-8" id="filters" role="group" aria-label="Filter posts">
-      <button data-filter="all" data-type="platform"
-        class="filter-btn active font-mono text-xs px-3 py-1.5 rounded border border-accent/50 text-accent bg-accent/10">
-        all
-      </button>
-      {allPlatforms.map(p => (
-        <button data-filter={p} data-type="platform"
-          class="filter-btn font-mono text-xs px-3 py-1.5 rounded border border-border text-muted hover:border-accent/30 hover:text-text transition-colors">
-          {p}
-        </button>
-      ))}
-      {allTags.slice(0, 12).map(t => (
-        <button data-filter={t} data-type="tag"
-          class="filter-btn font-mono text-xs px-3 py-1.5 rounded border border-border/60 text-muted hover:border-accent/30 hover:text-text transition-colors">
-          #{t}
-        </button>
-      ))}
-    </div>
-
-    <!-- Grid -->
-    {posts.length === 0 ? (
-      <p class="font-mono text-sm text-muted">No write-ups yet.</p>
-    ) : (
-      <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="labs-grid" role="list">
-        {posts.map(post => {
-          const platform = getPlatform(post);
-          const desc = displayDesc(post);
-          const visibleTags = (post.data.tags ?? []).filter((t: string) => !HIDDEN_TAGS.has(t.toLowerCase()));
-          return (
-          <li
-            data-platform={platform}
-            data-tags={JSON.stringify(post.data.tags ?? [])}
-            class="lab-card border border-border rounded-lg p-4 hover:border-accent/30 transition-colors"
+    <!-- 3×2 section grid -->
+    <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" role="list">
+      {sectionStats.map(({ section, count, latest }) => (
+        <li>
+          <a
+            href={`/labs/${section.id}/`}
+            class="group flex flex-col h-full border border-border rounded-lg p-5
+                   hover:border-accent/30 transition-colors focus-visible:outline-2
+                   focus-visible:outline-accent"
           >
-            <a href={`/labs/${post.slug}/`} class="group block focus-visible:outline-2 focus-visible:outline-accent rounded h-full">
-              <span class="font-mono text-xs text-muted uppercase tracking-wider">{platform}</span>
-              <h2 class="text-text font-medium group-hover:text-accent transition-colors mt-1 mb-2 text-sm">
-                {post.data.title}
-              </h2>
-              {desc && (
-                <p class="text-xs text-muted leading-relaxed mb-2">{desc}</p>
+            <h2 class="text-text font-semibold group-hover:text-accent transition-colors mb-2">
+              {section.title}
+            </h2>
+            <p class="text-xs text-muted leading-relaxed flex-1 mb-4">
+              {section.description}
+            </p>
+            <div class="flex items-center justify-between font-mono text-xs text-muted">
+              {count === 0 ? (
+                <span class="text-muted/50 italic">Coming soon</span>
+              ) : (
+                <span>{count} write-up{count !== 1 ? 's' : ''}</span>
               )}
-              {post.data.difficulty && (
-                <span class="font-mono text-xs text-muted">{post.data.difficulty}</span>
+              {latest && (
+                <time datetime={latest.toISOString()}>
+                  {latest.toLocaleDateString('en-GB', { year: 'numeric', month: 'short' })}
+                </time>
               )}
-              {visibleTags.length > 0 && (
-                <div class="flex flex-wrap gap-1.5 mt-3">
-                  {visibleTags.slice(0, 4).map((t: string) => (
-                    <span class="font-mono text-[0.65rem] text-muted border border-border/40 px-1.5 py-0.5 rounded-full">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </a>
-          </li>
-          );
-        })}
-      </ul>
-    )}
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
   </div>
 </Base>
-
-<script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
-  const cards = document.querySelectorAll<HTMLElement>('.lab-card');
-
-  let activePlatform = 'all';
-  let activeTag = '';
-
-  function applyFilters() {
-    cards.forEach(card => {
-      const platform = card.dataset.platform ?? '';
-      const tags: string[] = JSON.parse(card.dataset.tags ?? '[]');
-
-      const platformOk = activePlatform === 'all' || platform === activePlatform;
-      const tagOk = !activeTag || tags.includes(activeTag);
-
-      card.style.display = platformOk && tagOk ? '' : 'none';
-    });
-  }
-
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const type = btn.dataset.type;
-      const filter = btn.dataset.filter ?? '';
-
-      if (type === 'platform') {
-        activePlatform = filter;
-        activeTag = '';
-      } else {
-        activeTag = activeTag === filter ? '' : filter;
-      }
-
-      // Update active styling
-      buttons.forEach(b => {
-        const isActive =
-          (b.dataset.type === 'platform' && b.dataset.filter === activePlatform) ||
-          (b.dataset.type === 'tag' && b.dataset.filter === activeTag);
-        b.classList.toggle('active', isActive);
-        b.classList.toggle('border-accent/50', isActive);
-        b.classList.toggle('text-accent', isActive);
-        b.classList.toggle('bg-accent/10', isActive);
-        b.classList.toggle('border-border', !isActive);
-        b.classList.toggle('text-muted', !isActive);
-      });
-
-      applyFilters();
-    });
-  });
-</script>

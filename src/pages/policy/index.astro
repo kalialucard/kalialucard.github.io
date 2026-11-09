@@ -1,0 +1,71 @@
+---
+// src/pages/policy/index.astro
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { profile } from '@/data/profile';
+---
+
+<Base
+  title="Disclosure & Reporting Policy"
+  description="Disclosure and reporting policy for samindrasamiya.site."
+>
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <p class="font-mono text-xs text-muted mb-6">~/policy</p>
+    <h1 class="text-3xl font-semibold text-text mb-10">Disclosure & Reporting Policy</h1>
+
+    <div class="max-w-2xl space-y-10 text-sm text-muted leading-relaxed">
+
+      <section>
+        <h2 class="font-semibold text-text mb-3">Vulnerability reports</h2>
+        <p>
+          I do not publish vulnerability reports or findings from bug bounty programs or vulnerability
+          disclosure programs, public or private, unless the program explicitly permits it in writing.
+          Nothing on this site describes an unfixed vulnerability or identifies an affected organisation.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-semibold text-text mb-3">Government programs</h2>
+        <p>
+          Participation in government vulnerability disclosure programs is confidential;
+          no details are published.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-semibold text-text mb-3">Practice write-ups</h2>
+        <p>
+          Labs content covers practice and training environments (TryHackMe, Hack The Box, smart
+          contract training challenges), not real-world targets. I follow each platform's rules on
+          sharing solutions and omit flags, credentials and active challenges.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-semibold text-text mb-3">Authorisation</h2>
+        <p>I only test systems I am authorised to test.</p>
+      </section>
+
+      <section>
+        <h2 class="font-semibold text-text mb-3">Issues with this site</h2>
+        <p>
+          Report them to{' '}
+          <a href={`mailto:${profile.links.email}`}
+             class="text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+            {profile.email_display}
+          </a>
+          ; see{' '}
+          <a href="/.well-known/security.txt"
+             class="text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+            /.well-known/security.txt
+          </a>.
+        </p>
+      </section>
+
+    </div>
+  </div>
+</Base>

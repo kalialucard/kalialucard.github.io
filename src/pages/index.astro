@@ -1,49 +1,51 @@
 ---
+// src/pages/index.astro — Home page (full rewrite)
 import Base from '@/layouts/Base.astro';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
-import HeroTyper from '@/components/HeroTyper.astro';
 import PlatformLinks from '@/components/PlatformLinks.astro';
-import SeverityChip from '@/components/SeverityChip.astro';
 import { profile } from '@/data/profile';
+import { focusAreas } from '@/data/focus';
+import credlyData from '@/data/credly.json';
 import { getCollection } from 'astro:content';
 
-// Latest 3 research posts (disclosure_ok:true only)
-const researchPosts = (await getCollection('research', e => e.data.disclosure_ok === true))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+// Latest 3 write-ups across all labs sections, sorted by date
+const labPosts = (await getCollection('labs'))
+  .filter(p => p.data.date)
+  .sort((a, b) => b.data.date!.getTime() - a.data.date!.getTime())
   .slice(0, 3);
 
-const whatITest = [
-  {
-    title: 'Web Applications',
-    desc: 'Auth flaws, injection, logic bugs, session management, IDOR, XSS, CSRF, and business-logic vulnerabilities across modern web stacks.',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>`,
-  },
-  {
-    title: 'APIs',
-    desc: 'REST and GraphQL endpoints: broken object-level auth, excessive data exposure, rate-limiting failures, and injection via API parameters.',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v2"/><path d="m21 16-4 4-4-4"/><path d="M17 20v-8"/></svg>`,
-  },
-  {
-    title: 'Network & Infrastructure',
-    desc: 'Misconfigured services, exposed management interfaces, privilege escalation paths, and lateral movement in enterprise environments.',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="9" y="16" width="6" height="6" rx="1"/><path d="M5 8v4c0 1.1.9 2 2 2h10a2 2 0 0 0 2-2V8"/><path d="M12 14v2"/></svg>`,
-  },
-];
+// Credentials strip counts (from self-hosted credly snapshot)
+const ciscoCount = (credlyData as any[]).filter((b: any) => b.issuer === 'Cisco Networking Academy').length;
+
+const BOILERPLATE_RE = /^(Detailed technical walkthrough and security analysis|Technical documentation and research)/i;
+function labDesc(post: (typeof labPosts)[number]): string | undefined {
+  const d = post.data.description;
+  return !d || BOILERPLATE_RE.test(d) ? undefined : d;
+}
+function labSection(post: (typeof labPosts)[number]): string {
+  const s = post.data.section ?? post.data.category ?? 'tryhackme';
+  return s.toLowerCase();
+}
 ---
 
-<Base title="Home">
+<Base
+  title="Home"
+  description={profile.tagline}
+  hasLabsPosts={labPosts.length > 0}
+>
   <Nav slot="nav" />
-  <Footer slot="footer" />
+  <Footer slot="footer" hasLabsPosts={labPosts.length > 0} />
 
   <!-- Hero -->
   <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-20 pb-16">
     <p class="font-mono text-xs text-muted mb-4">~/</p>
-    <h1 class="text-4xl sm:text-5xl font-semibold text-text mb-4 leading-tight font-mono">
-      {profile.handle}
+    <h1 class="text-4xl sm:text-5xl font-semibold text-text mb-2 leading-tight">
+      {profile.nickname}
     </h1>
+    <p class="font-mono text-sm text-accent mb-4">a.k.a. {profile.handle}</p>
     <p class="text-xl sm:text-2xl text-muted mb-8 max-w-2xl leading-relaxed">
-      <HeroTyper text={profile.positioning} />
+      {profile.tagline}
     </p>
     <div class="flex flex-wrap gap-4 mb-12">
       <a href="/labs/"
@@ -58,7 +60,7 @@ const whatITest = [
       </a>
     </div>
 
-    <!-- Platform links -->
+    <!-- Platform profiles -->
     <PlatformLinks />
   </section>
 
@@ -66,81 +68,116 @@ const whatITest = [
   <section class="border-t border-border">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16">
       <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-8">What I test</h2>
-      <div class="grid sm:grid-cols-3 gap-6">
-        {whatITest.map(item => (
-          <div class="bg-surface border border-border rounded-lg p-6 hover:border-accent/30 transition-colors">
-            <div class="text-accent mb-4" set:html={item.icon} />
-            <h3 class="font-semibold text-text mb-2">{item.title}</h3>
-            <p class="text-sm text-muted leading-relaxed">{item.desc}</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {focusAreas.map(area => (
+          <div class="bg-surface border border-border rounded-lg p-5 hover:border-accent/30 transition-colors">
+            <div class="text-accent mb-3" set:html={area.icon} />
+            <h3 class="font-semibold text-text mb-2 text-sm">{area.title}</h3>
+            <p class="text-xs text-muted leading-relaxed">{area.desc}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Latest Research -->
-  <section class="border-t border-border">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16">
-      <div class="flex items-center justify-between mb-8">
-        <h2 class="font-mono text-xs text-muted uppercase tracking-widest">Latest research</h2>
-        <a href="/research/" class="font-mono text-xs text-accent hover:underline">view all →</a>
-      </div>
-
-      {researchPosts.length === 0 ? (
-        <p class="font-mono text-sm text-muted">No public write-ups yet.</p>
-      ) : (
-        <ul class="space-y-6" role="list">
-          {researchPosts.map(post => (
-            <li class="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors">
-              <a href={`/research/${post.slug}/`} class="group block focus-visible:outline-2 focus-visible:outline-accent rounded">
-                <div class="flex flex-wrap items-center gap-3 mb-2">
-                  <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-muted">
-                    {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </time>
-                  {post.data.severity && <SeverityChip severity={post.data.severity} />}
-                </div>
-                <h3 class="text-text font-medium group-hover:text-accent transition-colors">{post.data.title}</h3>
-                {post.data.description && (
-                  <p class="text-sm text-muted mt-1">{post.data.description}</p>
-                )}
-              </a>
-            </li>
-          ))}
+  <!-- Latest write-ups (hidden when empty) -->
+  {labPosts.length > 0 && (
+    <section class="border-t border-border">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="font-mono text-xs text-muted uppercase tracking-widest">Latest write-ups</h2>
+          <a href="/labs/" class="font-mono text-xs text-accent hover:underline">view all →</a>
+        </div>
+        <ul class="space-y-4" role="list">
+          {labPosts.map(post => {
+            const section = labSection(post);
+            const desc = labDesc(post);
+            return (
+              <li class="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors">
+                <a href={`/labs/${section}/${post.slug}/`} class="group block focus-visible:outline-2 focus-visible:outline-accent rounded">
+                  <div class="flex flex-wrap items-center gap-3 mb-1.5">
+                    {post.data.date && (
+                      <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-muted">
+                        {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </time>
+                    )}
+                    <span class="font-mono text-xs text-muted/60 uppercase">{section}</span>
+                  </div>
+                  <h3 class="text-text font-medium group-hover:text-accent transition-colors">{post.data.title}</h3>
+                  {desc && <p class="text-sm text-muted mt-1">{desc}</p>}
+                </a>
+              </li>
+            );
+          })}
         </ul>
-      )}
+      </div>
+    </section>
+  )}
+
+  <!-- Credentials & Training strip -->
+  <section class="border-t border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div class="flex flex-wrap items-center justify-between gap-6">
+        <div>
+          <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-2">Credentials & Training</h2>
+          <p class="text-sm text-muted">
+            {ciscoCount} Cisco Networking Academy course badge{ciscoCount !== 1 ? 's' : ''} ·
+            {' '}Google IT Support Professional Certificate · ISC2 Candidate
+          </p>
+        </div>
+        <a href="/credentials/"
+           class="font-mono text-xs text-accent hover:underline shrink-0 focus-visible:outline-2 focus-visible:outline-accent rounded">
+          View credentials →
+        </a>
+      </div>
     </div>
   </section>
 
-  <!-- Methodology -->
+  <!-- Approach -->
   <section class="border-t border-border">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16">
       <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-8">Approach</h2>
       <div class="grid sm:grid-cols-2 gap-8 max-w-2xl">
         <div>
           <p class="font-mono text-xs text-accent mb-2">01 / Reconnaissance</p>
-          <p class="text-sm text-muted leading-relaxed">Map attack surface before touching anything. Understand the architecture, data flows, and trust boundaries.</p>
+          <p class="text-sm text-muted leading-relaxed">Map attack surface before touching anything. For web: enumerate endpoints, params, auth flows, and third-party integrations. For smart contracts: read the protocol docs, trace value flows, map trust boundaries, and identify every external call.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">02 / Testing</p>
-          <p class="text-sm text-muted leading-relaxed">Manual-first with tooling support. Focus on business logic and chained vulnerabilities — the bugs scanners miss.</p>
+          <p class="text-sm text-muted leading-relaxed">Manual-first, tooling-supported. Web2: probe business logic, chained vulnerabilities, and edge cases automated scanners miss. Web3: reason about invariants, economic assumptions, and state transitions that break under adversarial conditions.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">03 / Verification</p>
-          <p class="text-sm text-muted leading-relaxed">Reproduce every finding with a minimal proof of concept. Assess real-world impact, not theoretical risk.</p>
+          <p class="text-sm text-muted leading-relaxed">Every finding is reproduced with a minimal proof of concept. Severity is based on actual exploitability and real-world impact — not theoretical risk or CVSS scores.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">04 / Reporting</p>
-          <p class="text-sm text-muted leading-relaxed">Clear, evidence-based reports with remediation guidance. No padding, no jargon for its own sake.</p>
+          <p class="text-sm text-muted leading-relaxed">Clear, evidence-based reports: what it is, how to reproduce it, what the impact is, and how to fix it. No filler, no jargon for its own sake.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Contact CTA -->
+  <!-- Policy callout -->
+  <section class="border-t border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <p class="text-sm text-muted">
+        I don't publish bug bounty or VDP reports.{' '}
+        <a href="/policy/" class="text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+          Read the policy →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Get in touch -->
   <section class="border-t border-border">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16 text-center">
       <h2 class="text-xl font-semibold text-text mb-3">Get in touch</h2>
-      <p class="text-muted mb-6 max-w-md mx-auto">Bug bounty collaboration, penetration testing engagement, or responsible disclosure.</p>
+      <p class="text-muted mb-6 max-w-md mx-auto">
+        Bug bounty collaboration, smart contract audit, penetration testing engagement, or responsible disclosure.
+        Web2 and Web3 scope covered.
+      </p>
       <a href="/contact/"
          class="inline-flex items-center gap-2 border border-accent/40 text-accent px-6 py-2.5 rounded
                 hover:bg-accent/10 transition-colors focus-visible:outline-2 focus-visible:outline-accent">
