@@ -26,7 +26,13 @@ function readFile(p) {
 }
 
 function writeFile(p, content) {
-  fs.writeFileSync(p, content, 'utf8');
+  const sanitized = content
+    .replace(/\*\*🧠 Beginner Analysis\*\*/g, '')
+    .replace(/🧠 Beginner Analysis/g, '')
+    .replace(/Beginner Analysis/g, '')
+    .replace(/Technical Intelligence/g, '')
+    .replace(/Access_Level/g, '');
+  fs.writeFileSync(p, sanitized, 'utf8');
   console.log('  wrote', path.relative(ROOT, p));
 }
 

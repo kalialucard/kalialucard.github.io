@@ -39,7 +39,7 @@ function writeRedirect(fromPath, to) {
 writeRedirect('about.html', '/about/');
 writeRedirect('writeups.html', '/labs/');
 writeRedirect('devhub.html', '/notes/');
-writeRedirect('certificates.html', '/about/#certs');
+writeRedirect('certificates.html', '/credentials/');
 writeRedirect('contact.html', '/contact/');
 
 // ── posts/*.html — scan src/content/labs and src/content/notes ───────────────
