@@ -129,7 +129,7 @@ jobs:
           echo "PASS: /og.png → $code"
 
       - name: Link check — crawl live site
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2
         with:
           args: >
             --no-progress
