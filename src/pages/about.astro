@@ -5,11 +5,11 @@ import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
 import PlatformLinks from '@/components/PlatformLinks.astro';
 import { profile } from '@/data/profile';
-import { focusAreas } from '@/data/focus';
+import { focusAreas, capabilities } from '@/data/focus';
 import credlyData from '@/data/credly.json';
 
 const ciscoCount = (credlyData as any[]).filter((b: any) => b.issuer === 'Cisco Networking Academy').length;
-const description = `${profile.nickname} (${profile.handle}) — web application, API, network and infrastructure security testing; smart contract security review; bug bounty and vulnerability disclosure programs.`;
+const description = `${profile.nickname} (${profile.handle}) — ethical hacker and Web3 auditor. Full-scope web, API, network, and smart contract security across any chain or language.`;
 ---
 
 <Base
@@ -24,38 +24,90 @@ const description = `${profile.nickname} (${profile.handle}) — web application
 
     <div class="max-w-2xl">
       <h1 class="text-3xl font-semibold text-text mb-1">{profile.nickname}</h1>
-      <p class="font-mono text-sm text-accent mb-6">{profile.handle}</p>
+      <p class="font-mono text-sm text-accent mb-8">{profile.handle}</p>
 
       <!-- Bio -->
-      <section class="mb-10">
-        <p class="text-muted leading-relaxed mb-3">
-          Security researcher focused on web application, API, network and infrastructure security
-          testing, and smart contract security review. Participates in bug bounty and vulnerability
-          disclosure programs. Practice write-ups live in Labs. Works on {profile.environments}.
+      <section class="mb-12">
+        <p class="text-muted leading-relaxed mb-4">
+          Ethical hacker and Web3 security auditor. I work across the full scope of offensive
+          security: web application and API penetration testing, network and infrastructure
+          security, and smart contract auditing. No single discipline — the same methodology that
+          finds an authentication bypass in a web app finds a reentrancy bug in a DeFi protocol.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          On the Web3 side I audit smart contracts written in Solidity (EVM — Ethereum, Polygon,
+          Arbitrum, Base, and others), Move (Aptos, Sui), and other runtimes. Chain and language
+          are not constraints. The review covers access control, arithmetic, reentrancy, oracle
+          and flash loan risks, upgrade proxy patterns, storage layout, and the economic
+          invariants of the protocol itself.
+        </p>
+        <p class="text-muted leading-relaxed mb-4">
+          On the Web2 side the scope is everything from subdomain enumeration to full exploitation
+          chains: injection, authentication, session management, business logic, Active Directory
+          attacks, privilege escalation, and lateral movement. I work natively on Windows and
+          Linux, and explore different operating systems as a hobby. I cover all IT security
+          disciplines with the exception of IoT and hardware hacking, and pick up new domains
+          quickly.
         </p>
         <p class="text-sm text-muted">
-          {profile.govVdp}{' '}
+          Participates in public bug bounty programs (HackenProof, HackerOne) and
+          vulnerability disclosure programs. {profile.govVdp}{' '}
           <a href="/policy/" class="text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded text-xs">
             Disclosure policy →
           </a>
         </p>
       </section>
 
-      <!-- Focus -->
-      <section class="mb-10">
-        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Focus</h2>
-        <ul class="space-y-2" role="list">
+      <!-- Focus areas (cards row on larger screens) -->
+      <section class="mb-12">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-6">What I test</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
           {focusAreas.map(area => (
-            <li class="flex items-start gap-3 text-sm text-text/90">
-              <span class="font-mono text-accent mt-0.5 shrink-0">›</span>
-              {area.title}
-            </li>
+            <div class="border border-border rounded-lg p-4 hover:border-accent/20 transition-colors">
+              <div class="text-accent mb-2" set:html={area.icon} />
+              <h3 class="font-semibold text-text text-sm mb-2">{area.title}</h3>
+              <p class="text-xs text-muted leading-relaxed">{area.desc}</p>
+            </div>
           ))}
-        </ul>
+        </div>
+      </section>
+
+      <!-- Detailed capabilities -->
+      <section class="mb-12">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-6">Capabilities</h2>
+        <div class="space-y-8">
+          {capabilities.map(cat => (
+            <div>
+              <h3 class="font-mono text-xs text-accent uppercase tracking-wider mb-3">
+                {cat.category}
+              </h3>
+              <ul class="space-y-1.5" role="list">
+                {cat.items.map(item => (
+                  <li class="flex items-start gap-2.5 text-sm text-muted">
+                    <span class="font-mono text-accent/60 mt-0.5 shrink-0 select-none">›</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- Environments -->
+      <section class="mb-12">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Environments</h2>
+        <div class="flex flex-wrap gap-2">
+          {(['Windows', 'Linux', 'Multi-OS (hobby)'] as const).map(env => (
+            <span class="font-mono text-xs text-muted border border-border px-3 py-1.5 rounded">
+              {env}
+            </span>
+          ))}
+        </div>
       </section>
 
       <!-- Profiles -->
-      <section class="mb-10">
+      <section class="mb-12">
         <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Profiles</h2>
         <PlatformLinks />
       </section>
@@ -70,16 +122,16 @@ const description = `${profile.nickname} (${profile.handle}) — web application
           </li>
           <li class="flex items-start gap-2">
             <span class="font-mono text-accent shrink-0">›</span>
-            {ciscoCount} Cisco Networking Academy course badge{ciscoCount !== 1 ? 's' : ''} (student-level)
+            {ciscoCount} Cisco Networking Academy course badge{ciscoCount !== 1 ? 's' : ''} — including Ethical Hacker, Junior Cybersecurity Analyst Career Path, Cyber Threat Management
           </li>
           <li class="flex items-start gap-2">
             <span class="font-mono text-accent shrink-0">›</span>
-            ISC2 Candidate membership
+            ISC2 Candidate membership (Sep 2025 – Sep 2026)
           </li>
         </ul>
         <p class="mt-3">
           <a href="/credentials/" class="font-mono text-xs text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
-            View credentials →
+            View all credentials →
           </a>
         </p>
       </section>

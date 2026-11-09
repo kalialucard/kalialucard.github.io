@@ -13,7 +13,7 @@ export const profile = {
   email_display: "kalialucard@proton.me",
 
   /** One-line tagline shown in hero and OG description. */
-  tagline: "Security researcher: web, API, network and smart contract security.",
+  tagline: "Ethical hacker and Web3 auditor — web, API, network, and smart contract security across any chain or language.",
 
   /** Operating environments. */
   environments: "Windows and Linux",

@@ -140,19 +140,19 @@ function labSection(post: (typeof labPosts)[number]): string {
       <div class="grid sm:grid-cols-2 gap-8 max-w-2xl">
         <div>
           <p class="font-mono text-xs text-accent mb-2">01 / Reconnaissance</p>
-          <p class="text-sm text-muted leading-relaxed">Map attack surface before touching anything. Understand the architecture, data flows, and trust boundaries.</p>
+          <p class="text-sm text-muted leading-relaxed">Map attack surface before touching anything. For web: enumerate endpoints, params, auth flows, and third-party integrations. For smart contracts: read the protocol docs, trace value flows, map trust boundaries, and identify every external call.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">02 / Testing</p>
-          <p class="text-sm text-muted leading-relaxed">Manual-first with tooling support. Focus on business logic and chained vulnerabilities — the bugs scanners miss.</p>
+          <p class="text-sm text-muted leading-relaxed">Manual-first, tooling-supported. Web2: probe business logic, chained vulnerabilities, and edge cases automated scanners miss. Web3: reason about invariants, economic assumptions, and state transitions that break under adversarial conditions.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">03 / Verification</p>
-          <p class="text-sm text-muted leading-relaxed">Reproduce every finding with a minimal proof of concept. Assess real-world impact, not theoretical risk.</p>
+          <p class="text-sm text-muted leading-relaxed">Every finding is reproduced with a minimal proof of concept. Severity is based on actual exploitability and real-world impact — not theoretical risk or CVSS scores.</p>
         </div>
         <div>
           <p class="font-mono text-xs text-accent mb-2">04 / Reporting</p>
-          <p class="text-sm text-muted leading-relaxed">Clear, evidence-based reports with remediation guidance. No padding, no jargon for its own sake.</p>
+          <p class="text-sm text-muted leading-relaxed">Clear, evidence-based reports: what it is, how to reproduce it, what the impact is, and how to fix it. No filler, no jargon for its own sake.</p>
         </div>
       </div>
     </div>
@@ -175,7 +175,8 @@ function labSection(post: (typeof labPosts)[number]): string {
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-16 text-center">
       <h2 class="text-xl font-semibold text-text mb-3">Get in touch</h2>
       <p class="text-muted mb-6 max-w-md mx-auto">
-        Bug bounty collaboration, penetration testing engagement, or responsible disclosure.
+        Bug bounty collaboration, smart contract audit, penetration testing engagement, or responsible disclosure.
+        Web2 and Web3 scope covered.
       </p>
       <a href="/contact/"
          class="inline-flex items-center gap-2 border border-accent/40 text-accent px-6 py-2.5 rounded
