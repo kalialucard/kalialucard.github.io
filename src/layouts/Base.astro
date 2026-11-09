@@ -1,0 +1,107 @@
+---
+import { profile } from '@/data/profile';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogType?: 'website' | 'article';
+  canonicalURL?: string;
+}
+
+const {
+  title,
+  description = profile.positioning,
+  ogType = 'website',
+  canonicalURL = Astro.url.href,
+} = Astro.props;
+
+const siteTitle = `${title} · ${profile.handle}`;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+
+  <title>{siteTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={siteTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content={profile.handle} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={siteTitle} />
+  <meta name="twitter:description" content={description} />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title={`${profile.handle} research feed`} href="/rss.xml" />
+
+  <!-- Pagefind UI styles (injected at build) -->
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+
+  <!-- Global styles injected via frontmatter import -->
+</head>
+
+<body class="min-h-screen flex flex-col bg-bg text-text antialiased noise-bg">
+  <!-- Skip to content -->
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <slot name="nav" />
+
+  <main id="main-content" class="flex-1">
+    <slot />
+  </main>
+
+  <slot name="footer" />
+
+  <!-- Copy button script — runs after DOM is ready -->
+  <script>
+    function initCopyButtons() {
+      document.querySelectorAll('pre').forEach((pre) => {
+        const wrapper = pre.closest('.code-block-wrapper') ?? pre.parentElement;
+        if (!wrapper || wrapper.querySelector('.copy-btn')) return;
+
+        // Wrap in relative container if not already
+        if (!pre.closest('.code-block-wrapper')) {
+          const w = document.createElement('div');
+          w.className = 'code-block-wrapper';
+          pre.parentNode?.insertBefore(w, pre);
+          w.appendChild(pre);
+        }
+
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'copy';
+        btn.setAttribute('aria-label', 'Copy code');
+
+        btn.addEventListener('click', async () => {
+          const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+          await navigator.clipboard.writeText(code);
+          btn.textContent = 'copied!';
+          btn.dataset.copied = 'true';
+          setTimeout(() => {
+            btn.textContent = 'copy';
+            delete btn.dataset.copied;
+          }, 2000);
+        });
+
+        pre.closest('.code-block-wrapper')?.appendChild(btn);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initCopyButtons);
+  </script>
+</body>
+</html>

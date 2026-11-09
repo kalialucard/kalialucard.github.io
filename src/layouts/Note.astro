@@ -1,0 +1,53 @@
+---
+// Note.astro — wide layout for command/tool reference pages
+import Base from './Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  tags?: string[];
+  slug: string;
+}
+
+const { title, description, tags = [], slug } = Astro.props;
+const breadcrumb = `~/notes/${slug}`;
+---
+
+<Base title={title} description={description}>
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+    <!-- Breadcrumb -->
+    <p class="font-mono text-xs text-muted mb-6">{breadcrumb}</p>
+
+    <!-- Header -->
+    <header class="mb-8 pb-6 border-b border-border">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-text mb-3">{title}</h1>
+      {tags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {tags.map(t => (
+            <span class="font-mono text-xs text-muted border border-border/60 px-2 py-0.5 rounded-full">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- Body: wider column for command tables/blocks -->
+    <div id="post-content"
+      class="prose prose-invert max-w-none
+             prose-headings:font-semibold prose-headings:text-text
+             prose-p:text-text/90 prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+             prose-code:font-mono prose-code:text-accent/90
+             prose-pre:bg-transparent prose-pre:p-0
+             prose-table:w-full prose-th:font-mono prose-th:text-muted prose-th:text-xs
+             prose-td:font-mono prose-td:text-sm prose-td:align-top
+             prose-hr:border-border">
+      <slot />
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,118 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes'))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+const allTags = [...new Set(notes.flatMap(n => n.data.tags ?? []))].sort();
+---
+
+<Base title="Notes" description="Security tool references and command notes by kalialucard.">
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <p class="font-mono text-xs text-muted mb-6">~/notes</p>
+    <h1 class="text-3xl font-semibold text-text mb-3">Notes</h1>
+    <p class="text-muted mb-8 max-w-xl">
+      Tool references and command collections. Merged overview + command-list pages for each tool.
+    </p>
+
+    <!-- Tag filters -->
+    <div class="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter by tag">
+      <button data-tag="" class="tag-btn active font-mono text-xs px-3 py-1.5 rounded border border-accent/50 text-accent bg-accent/10">
+        all
+      </button>
+      {allTags.map(t => (
+        <button data-tag={t}
+          class="tag-btn font-mono text-xs px-3 py-1.5 rounded border border-border/60 text-muted hover:border-accent/30 hover:text-text transition-colors">
+          #{t}
+        </button>
+      ))}
+    </div>
+
+    <!-- Search -->
+    <div class="relative mb-8">
+      <input
+        id="notes-search"
+        type="search"
+        placeholder="Search notes…"
+        class="w-full sm:w-80 bg-surface border border-border rounded px-4 py-2 font-mono text-sm text-text placeholder:text-muted
+               focus:outline-none focus:border-accent/60 transition-colors"
+        aria-label="Search notes"
+      />
+    </div>
+
+    {notes.length === 0 ? (
+      <p class="font-mono text-sm text-muted">No notes yet.</p>
+    ) : (
+      <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="notes-grid" role="list">
+        {notes.map(note => (
+          <li
+            data-title={note.data.title.toLowerCase()}
+            data-tags={JSON.stringify(note.data.tags ?? [])}
+            class="note-card border border-border rounded-lg p-4 hover:border-accent/30 transition-colors"
+          >
+            <a href={`/notes/${note.slug}/`} class="group block focus-visible:outline-2 focus-visible:outline-accent rounded">
+              <h2 class="font-mono text-sm text-text group-hover:text-accent transition-colors mb-2">
+                {note.data.title}
+              </h2>
+              {note.data.tags && note.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-1.5">
+                  {note.data.tags.map((t: string) => (
+                    <span class="font-mono text-[0.65rem] text-muted border border-border/40 px-1.5 py-0.5 rounded-full">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>
+
+<script>
+  const tagBtns = document.querySelectorAll<HTMLButtonElement>('.tag-btn');
+  const cards = document.querySelectorAll<HTMLElement>('.note-card');
+  const searchInput = document.getElementById('notes-search') as HTMLInputElement;
+
+  let activeTag = '';
+  let searchQuery = '';
+
+  function applyFilters() {
+    cards.forEach(card => {
+      const title = card.dataset.title ?? '';
+      const tags: string[] = JSON.parse(card.dataset.tags ?? '[]');
+      const tagOk = !activeTag || tags.includes(activeTag);
+      const searchOk = !searchQuery || title.includes(searchQuery);
+      card.style.display = tagOk && searchOk ? '' : 'none';
+    });
+  }
+
+  tagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTag = btn.dataset.tag ?? '';
+      tagBtns.forEach(b => {
+        const isActive = b.dataset.tag === activeTag;
+        b.classList.toggle('active', isActive);
+        b.classList.toggle('border-accent/50', isActive);
+        b.classList.toggle('text-accent', isActive);
+        b.classList.toggle('bg-accent/10', isActive);
+        b.classList.toggle('border-border/60', !isActive);
+        b.classList.toggle('text-muted', !isActive);
+      });
+      applyFilters();
+    });
+  });
+
+  searchInput?.addEventListener('input', () => {
+    searchQuery = searchInput.value.toLowerCase();
+    applyFilters();
+  });
+</script>

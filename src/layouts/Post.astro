@@ -1,0 +1,107 @@
+---
+// Post.astro — article layout: 70ch column, sticky ToC, reading time, chips, breadcrumb
+import Base from './Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import Toc from '@/components/Toc.astro';
+import SeverityChip from '@/components/SeverityChip.astro';
+import type { Severity } from '@/components/SeverityChip.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  date?: Date;
+  severity?: Severity;
+  vulnClass?: string;
+  targetClass?: string;
+  status?: 'draft' | 'published' | 'redacted';
+  tags?: string[];
+  section: 'research' | 'labs';
+  slug: string;
+  readingTime?: number;
+}
+
+const {
+  title,
+  description,
+  date,
+  severity,
+  vulnClass,
+  targetClass,
+  status = 'published',
+  tags = [],
+  section,
+  slug,
+  readingTime,
+} = Astro.props;
+
+const dateStr = date?.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+const breadcrumb = `~/${section}/${slug}`;
+---
+
+<Base title={title} description={description} ogType="article">
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10 flex gap-12">
+    <!-- Sidebar ToC (xl+) -->
+    <Toc />
+
+    <!-- Article -->
+    <article class="min-w-0 flex-1">
+      <!-- Breadcrumb -->
+      <p class="font-mono text-xs text-muted mb-6">{breadcrumb}</p>
+
+      <!-- Header -->
+      <header class="mb-8 pb-8 border-b border-border">
+        <h1 class="text-2xl sm:text-3xl font-semibold text-text mb-4 leading-snug">{title}</h1>
+
+        <div class="flex flex-wrap items-center gap-3">
+          {date && (
+            <time datetime={date.toISOString()} class="font-mono text-xs text-muted">
+              {dateStr}
+            </time>
+          )}
+          {readingTime && (
+            <span class="font-mono text-xs text-muted">{readingTime} min read</span>
+          )}
+          {severity && <SeverityChip severity={severity} />}
+          {status && status !== 'published' && <SeverityChip status={status} />}
+          {vulnClass && (
+            <span class="font-mono text-xs text-muted border border-border px-2 py-0.5 rounded">
+              {vulnClass}
+            </span>
+          )}
+          {targetClass && (
+            <span class="font-mono text-xs text-muted border border-border px-2 py-0.5 rounded">
+              {targetClass}
+            </span>
+          )}
+        </div>
+
+        {tags.length > 0 && (
+          <div class="flex flex-wrap gap-2 mt-4">
+            {tags.map(t => (
+              <span class="font-mono text-xs text-muted border border-border/60 px-2 py-0.5 rounded-full">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <!-- Body -->
+      <div id="post-content"
+        class="prose prose-invert prose-sm sm:prose-base max-w-[70ch]
+               prose-headings:font-semibold prose-headings:text-text
+               prose-p:text-text/90 prose-p:leading-relaxed
+               prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+               prose-code:font-mono prose-code:text-accent/90
+               prose-pre:bg-transparent prose-pre:p-0
+               prose-blockquote:border-l-accent/60 prose-blockquote:text-muted
+               prose-hr:border-border">
+        <slot />
+      </div>
+    </article>
+  </div>
+</Base>

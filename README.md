@@ -1,69 +1,80 @@
-# 📡 Technical Intelligence Labs | Professional Portfolio
+# samindrasamiya.site
 
-[![Security Status](https://img.shields.io/badge/Security-Clearance_Active-0ea5e9?style=for-the-badge&logo=shield&logoColor=white)](https://kalialucard.github.io)
-[![Tech Stack](https://img.shields.io/badge/Stack-Obsidian_%7C_Python_%7C_GitHub-22c55e?style=for-the-badge&logo=github&logoColor=white)](https://github.com/kalialucard)
-[![Live Site](https://img.shields.io/badge/Deployment-Live_Signal-a855f7?style=for-the-badge&logo=cloudflare&logoColor=white)](https://kalialucard.github.io)
+Personal security-research website for [kalialucard](https://github.com/kalialucard).  
+Live at **[samindrasamiya.site](https://samindrasamiya.site)**.
 
-> **"Intelligence is the ability to adapt to change."**
-
-This repository serves as the central hub for **Technical Intelligence Labs**, a professional cybersecurity portfolio and knowledge base. It is designed to demonstrate advanced proficiency in security research, penetration testing, and secure software development.
+Built with [Astro](https://astro.build) · Tailwind CSS · MDX · Pagefind · GitHub Pages.
 
 ---
 
-## ⚡ Core Objectives
+## Stack
 
-This project is not just a website; it is an automated **Knowledge Management System (KMS)** designed to streamline the documentation of complex security findings.
-
-*   **Centralized Intelligence**: A unified repository for CTF writeups, vulnerability research, and technical documentation.
-*   **Automated Pipeline**: Leveraging **GitHub Actions** and a custom **Python** engine to transform raw Markdown notes into a polished, interactive web experience.
-*   **AI-Enriched Reporting**: Integrated with **Google Gemini AI** to automatically refine raw engineering logs into professional-grade executive reports.
-*   **Aesthetic Immersion**: A "Security Terminal" UI design featuring CRT simulation, real-time data feeds, and high-fidelity visualizers.
+| Layer | Choice |
+|---|---|
+| Framework | Astro 5 (static output) |
+| Styling | Tailwind CSS + CSS variables |
+| Content | MDX content collections |
+| Search | Pagefind |
+| Fonts | Inter + JetBrains Mono (self-hosted via @fontsource) |
+| Deploy | GitHub Actions → GitHub Pages |
 
 ---
 
-## 📂 Architecture & Workflow
+## Local Development
 
-The system utilizes a "Docs-as-Code" approach, allowing for seamless content management directly from **Obsidian**.
-
-```mermaid
-graph LR
-    A[Obsidian Vault] -->|Push| B[GitHub Repo]
-    B -->|Trigger| C[GitHub Actions]
-    C -->|Build| D[Python Engine]
-    D -->|Deploy| E[GitHub Pages]
-    
-    style A fill:#2e3b4e,stroke:#22d3ee,stroke-width:2px
-    style E fill:#0f172a,stroke:#a3e635,stroke-width:2px
+### bash / zsh
+```bash
+npm install
+npm run migrate    # copy existing content into src/content/
+npm run redirects  # generate redirect stubs in public/posts/
+npm run dev        # start dev server at localhost:4321
 ```
 
-### Key Components
+### PowerShell (Windows)
+```powershell
+npm install
+npm run migrate
+npm run redirects
+npm run dev
+```
 
-*   **`content/`**: The Source of Truth. Contains raw Markdown research notes, categorized by domain (Writeups, Projects, Docs).
-*   **`manage.py`**: The core logic engine. Handles content parsing, AI enrichment, metadata extraction, and HTML generation.
-*   **`css/` & `js/`**: Custom aesthetic definitions using **Tailwind CSS** and vanilla JavaScript for performance and visual fidelity.
+## Production Build
 
----
+### bash
+```bash
+npm run build      # outputs to dist/
+npm run preview    # preview dist/ locally
+```
 
-## 🛡️ Technical Scope
-
-The portfolio showcases work across multiple security domains:
-
-| Domain | Description |
-| :--- | :--- |
-| **Network Security** | Infrastructure hardening, traffic analysis, and firewall configuration. |
-| **Offensive Operations** | CTF walkthroughs (TryHackMe/HackTheBox), exploit development, and red teaming logs. |
-| **Secure Development** | Code audits, DevSecOps pipelines, and secure API design. |
-| **Threat Intelligence** | OSINT investigations, malware analysis, and incident response playbooks. |
-
----
-
-## 🔗 Connect
-
-*   **Portfolio**: [kalialucard.github.io](https://kalialucard.github.io)
-*   **GitHub**: [@kalialucard](https://github.com/kalialucard)
-*   **TryHackMe**: [Top 1% Rank](https://tryhackme.com/p/kalialucard)
-*   **HackTheBox**: [Profile](https://app.hackthebox.com/profile/2503089)
+### PowerShell
+```powershell
+npm run build
+npm run preview
+```
 
 ---
 
-&copy; 2025 Technical Intelligence Labs. All systems nominal.
+## Content
+
+| Collection | Location | Purpose |
+|---|---|---|
+| `research` | `src/content/research/` | Bounty / pentest write-ups (`disclosure_ok: true` required to publish) |
+| `labs` | `src/content/labs/` | HTB / THM walkthroughs |
+| `notes` | `src/content/notes/` | Tool references & command cheatsheets |
+
+All personal data (name, profiles, certs) is in a single file: [`src/data/profile.ts`](src/data/profile.ts).  
+Fields set to `undefined` are **never rendered**.
+
+---
+
+## Deployment
+
+Pushes to `main` trigger `.github/workflows/deploy.yml` which runs `migrate → redirects → build` and deploys `dist/` to GitHub Pages.
+
+Pull requests run `.github/workflows/link-check.yml` to catch broken links before merge.
+
+---
+
+## License
+
+MIT © kalialucard

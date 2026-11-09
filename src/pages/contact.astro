@@ -1,0 +1,56 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { profile } from '@/data/profile';
+---
+
+<Base title="Contact" description={`Contact ${profile.name}`}>
+  <Nav slot="nav" />
+  <Footer slot="footer" />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <p class="font-mono text-xs text-muted mb-6">~/contact</p>
+
+    <div class="max-w-lg">
+      <h1 class="text-3xl font-semibold text-text mb-4">Contact</h1>
+      <p class="text-muted mb-10 leading-relaxed">
+        For bug bounty collaboration, penetration testing enquiries, or responsible disclosure questions.
+        Please do not send unsolicited third-party data.
+      </p>
+
+      <!-- Email -->
+      <section class="mb-8">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-3">Email</h2>
+        {profile.links.email ? (
+          <a href={`mailto:${profile.links.email}`}
+             class="font-mono text-sm text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+            {profile.links.email}
+          </a>
+        ) : (
+          <p class="font-mono text-sm text-muted">—</p>
+        )}
+      </section>
+
+      <!-- PGP — hidden until key is provided -->
+      {profile.links.pgp && (
+        <section class="mb-8">
+          <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-3">PGP Public Key</h2>
+          <a href={profile.links.pgp} target="_blank" rel="noopener noreferrer"
+             class="font-mono text-sm text-accent hover:underline focus-visible:outline-2 focus-visible:outline-accent rounded">
+            Download public key ↗
+          </a>
+        </section>
+      )}
+
+      <!-- Security.txt note -->
+      <section class="border border-border rounded-lg p-5">
+        <h2 class="font-mono text-xs text-muted uppercase tracking-widest mb-2">Responsible Disclosure</h2>
+        <p class="text-sm text-muted leading-relaxed">
+          A <a href="/.well-known/security.txt" class="text-accent hover:underline">security.txt</a> file
+          is published at the standard location. For vulnerability reports against this site, please email directly.
+        </p>
+      </section>
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,26 @@
+---
+import { profile } from '@/data/profile';
+
+// Only show platforms that have a URL defined
+const bountyPlatforms = profile.platforms.bounty.filter(p => p.url);
+const labPlatforms = profile.platforms.labs.filter(p => p.url);
+const allPlatforms = [...bountyPlatforms, ...labPlatforms];
+---
+
+{allPlatforms.length > 0 && (
+  <div class="flex flex-wrap items-center gap-3">
+    {allPlatforms.map(p => (
+      <a
+        href={p.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-mono text-xs text-muted border border-border px-3 py-1.5 rounded
+               hover:border-accent/50 hover:text-text transition-colors
+               focus-visible:outline-2 focus-visible:outline-accent"
+        aria-label={`${p.name} profile`}
+      >
+        {p.name}
+      </a>
+    ))}
+  </div>
+)}

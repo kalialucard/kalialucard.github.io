@@ -1,0 +1,41 @@
+name: Link Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Migrate content
+        run: node scripts/migrate-content.mjs
+
+      - name: Generate redirects
+        run: node scripts/generate-redirects.mjs
+
+      - name: Build
+        run: npm run build
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >
+            --base dist/
+            --no-progress
+            --exclude-loopback
+            --exclude "^mailto:"
+            --exclude "^https?://(hackerone|hackenproof|hackthebox|tryhackme|cantina|remedy)\."
+            dist/**/*.html
+          fail: true
