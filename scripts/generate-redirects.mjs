@@ -53,8 +53,8 @@ if (fs.existsSync(labsDir)) {
   for (const file of fs.readdirSync(labsDir)) {
     if (!file.endsWith('.md')) continue;
     const slug = file.replace(/\.md$/, '');
-    // Old URL patterns: slug.html and slug-command-list.html could both map here
-    writeRedirect(`posts/${slug}.html`, `/labs/${slug}/`);
+    // Old URL /posts/<slug>.html → new /labs/tryhackme/<slug>/
+    writeRedirect(`posts/${slug}.html`, `/labs/tryhackme/${slug}/`);
     count++;
   }
 }
